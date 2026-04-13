@@ -120,11 +120,7 @@ async function buildProfileHeadless(
   options: AddOptions,
 ): Promise<Profile | null> {
   const { name, email } = options;
-
-  if (!name || !email) {
-    out.error("Both --name and --email are required for headless mode.");
-    return null;
-  }
+  if (!name || !email) return null;
 
   if (!email.includes("@")) {
     out.error("Invalid email address.");

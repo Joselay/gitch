@@ -15,6 +15,7 @@ export function registerRemove(program: CAC): void {
 
       if (!profileExists(config, profileName)) {
         out.error(`Profile "${profileName}" not found.`);
+        out.dim("  Run 'gitch list' to see available profiles.");
         process.exit(1);
       }
 

@@ -120,8 +120,14 @@ async function promptGitHubSetup(sshKeyPath: string, profileName: string): Promi
 }
 
 async function manualKeyUpload(sshKeyPath: string): Promise<void> {
+  let pubKey: string;
   try {
-    const pubKey = await getPublicKey(sshKeyPath);
+    pubKey = await getPublicKey(sshKeyPath);
+  } catch {
+    p.log.warning(`Could not read public key at ${sshKeyPath}.pub`);
+    return;
+  }
+  try {
     await copyToClipboard(pubKey);
     p.log.success("Public key copied to clipboard!");
     p.log.info("Opening GitHub SSH settings...");
@@ -129,13 +135,8 @@ async function manualKeyUpload(sshKeyPath: string): Promise<void> {
     p.log.info('Paste your key in the browser and click "Add SSH key".');
   } catch {
     p.log.warning("Could not copy key or open browser. Add it manually:");
-    try {
-      const pubKey = await getPublicKey(sshKeyPath);
-      p.log.info(pubKey);
-      p.log.info("Go to: https://github.com/settings/ssh/new");
-    } catch {
-      p.log.warning(`Could not read public key at ${sshKeyPath}.pub`);
-    }
+    p.log.info(pubKey);
+    p.log.info("Go to: https://github.com/settings/ssh/new");
   }
 }
 

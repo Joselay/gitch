@@ -38,9 +38,14 @@ export function listItem(name: string, isActive: boolean): void {
   write(`${marker}${label}`);
 }
 
+export function emptyProfiles(): void {
+  info("No profiles configured.");
+  dim("  Run 'gitch add <profile>' to create one.");
+}
+
 export function profileCard(
   name: string,
-  email: string,
+  identity: string,
   sshKey: string,
   ghUser: string | undefined,
   isActive: boolean,
@@ -48,7 +53,7 @@ export function profileCard(
   const marker = isActive ? ansis.green("● ") : ansis.dim("○ ");
   const profileName = isActive ? ansis.green.bold(name) : ansis.bold(name);
   write(`${marker}${profileName}`);
-  label("Email", email);
+  label("Identity", identity);
   label("SSH Key", sshKey);
   if (ghUser) {
     label("GitHub", ghUser);

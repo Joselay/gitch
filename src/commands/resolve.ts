@@ -1,6 +1,6 @@
 import type { CAC } from "cac";
 import { getBindingForPath, getProfile, loadConfig } from "../core/config.ts";
-import { getLocalConfig, setLocalConfig } from "../core/git.ts";
+import { applyProfileLocally, getLocalConfig } from "../core/git.ts";
 import { buildSSHCommand } from "../core/ssh.ts";
 
 export function registerResolve(program: CAC): void {
@@ -16,17 +16,21 @@ export function registerResolve(program: CAC): void {
       const profile = getProfile(config, binding.profile);
       if (!profile) return;
 
-      const currentName = await getLocalConfig("user.name");
-      const currentEmail = await getLocalConfig("user.email");
+      const [currentName, currentEmail] = await Promise.all([
+        getLocalConfig("user.name"),
+        getLocalConfig("user.email"),
+      ]);
 
       if (currentName === profile.gitName && currentEmail === profile.gitEmail) {
         return;
       }
 
       try {
-        await setLocalConfig("user.name", profile.gitName);
-        await setLocalConfig("user.email", profile.gitEmail);
-        await setLocalConfig("core.sshCommand", buildSSHCommand(profile.sshKeyPath));
+        await applyProfileLocally(
+          profile.gitName,
+          profile.gitEmail,
+          buildSSHCommand(profile.sshKeyPath),
+        );
         process.stdout.write(binding.profile);
       } catch {
         // not a git repo or no permissions — silently skip

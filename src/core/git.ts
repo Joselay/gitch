@@ -62,3 +62,20 @@ export async function unsetLocalConfig(key: string, cwd?: string): Promise<void>
     // config key may already be unset, that's fine
   }
 }
+
+export async function applyProfileLocally(
+  gitName: string,
+  gitEmail: string,
+  sshCommand: string,
+  cwd?: string,
+): Promise<void> {
+  await setLocalConfig("user.name", gitName, cwd);
+  await setLocalConfig("user.email", gitEmail, cwd);
+  await setLocalConfig("core.sshCommand", sshCommand, cwd);
+}
+
+export async function clearProfileLocally(cwd?: string): Promise<void> {
+  await unsetLocalConfig("user.name", cwd);
+  await unsetLocalConfig("user.email", cwd);
+  await unsetLocalConfig("core.sshCommand", cwd);
+}

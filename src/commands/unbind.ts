@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 import type { CAC } from "cac";
 import { createBackup } from "../core/backup.ts";
 import { getBindingForPath, loadConfig, removeBinding, saveConfig } from "../core/config.ts";
-import { unsetLocalConfig } from "../core/git.ts";
+import { clearProfileLocally } from "../core/git.ts";
 import * as out from "../ui/output.ts";
 
 export function registerUnbind(program: CAC): void {
@@ -20,13 +20,11 @@ export function registerUnbind(program: CAC): void {
 
       await createBackup();
 
-      await unsetLocalConfig("user.name", absolutePath);
-      await unsetLocalConfig("user.email", absolutePath);
-      await unsetLocalConfig("core.sshCommand", absolutePath);
+      await clearProfileLocally(binding.path);
 
-      const updated = removeBinding(config, absolutePath);
+      const updated = removeBinding(config, binding.path);
       await saveConfig(updated);
 
-      out.success(`Unbound "${absolutePath}" from "${binding.profile}".`);
+      out.success(`Unbound "${binding.path}" from "${binding.profile}".`);
     });
 }

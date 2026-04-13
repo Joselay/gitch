@@ -8,8 +8,7 @@ export function registerList(program: CAC): void {
     const names = getProfileNames(config);
 
     if (names.length === 0) {
-      out.info("No profiles configured.");
-      out.dim("  Run 'gitch add <profile>' to create one.");
+      out.emptyProfiles();
       return;
     }
 

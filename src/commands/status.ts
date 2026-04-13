@@ -1,24 +1,21 @@
 import { basename } from "node:path";
 import type { CAC } from "cac";
-import { getProfile, getProfileNames, loadConfig } from "../core/config.ts";
+import { loadConfig } from "../core/config.ts";
 import * as out from "../ui/output.ts";
 
 export function registerStatus(program: CAC): void {
   program.command("status", "Show all profiles and current status").action(async () => {
     const config = await loadConfig();
-    const names = getProfileNames(config);
+    const profiles = Object.entries(config.profiles);
 
-    if (names.length === 0) {
-      out.info("No profiles configured.");
-      out.dim("  Run 'gitch add <profile>' to create one.");
+    if (profiles.length === 0) {
+      out.emptyProfiles();
       return;
     }
 
     out.heading("Profiles\n");
 
-    for (const name of names) {
-      const profile = getProfile(config, name);
-      if (!profile) continue;
+    for (const [name, profile] of profiles) {
       const isActive = config.activeProfile === name;
 
       out.profileCard(

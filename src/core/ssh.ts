@@ -105,11 +105,6 @@ export async function removeHostAlias(profileName: string): Promise<void> {
   await writeSSHConfig(updated ? `${updated}\n` : "");
 }
 
-export async function hasHostAlias(profileName: string): Promise<boolean> {
-  const content = await readSSHConfig();
-  return content.includes(START_MARKER(profileName));
-}
-
 export function buildSSHCommand(sshKeyPath: string): string {
   if (!isValidSSHKeyPath(sshKeyPath)) {
     throw new Error("SSH key path contains invalid characters.");

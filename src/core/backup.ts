@@ -33,7 +33,5 @@ async function pruneBackups(): Promise<void> {
   entries.sort();
   const toDelete = entries.slice(0, entries.length - MAX_BACKUPS);
 
-  for (const file of toDelete) {
-    await unlink(join(getBackupsDir(), file));
-  }
+  await Promise.all(toDelete.map((file) => unlink(join(getBackupsDir(), file))));
 }

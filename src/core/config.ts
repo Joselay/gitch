@@ -12,10 +12,6 @@ const CONFIG_DIR = Bun.env.GITCH_CONFIG_DIR ?? join(homedir(), ".gitch");
 const CONFIG_PATH = join(CONFIG_DIR, "config.json");
 const BACKUPS_DIR = join(CONFIG_DIR, "backups");
 
-export function getConfigDir(): string {
-  return CONFIG_DIR;
-}
-
 export function getConfigPath(): string {
   return CONFIG_PATH;
 }
