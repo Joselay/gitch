@@ -1,5 +1,5 @@
 {
-  "name": "gitch",
+  "name": "@joselay/gitch",
   "version": "1.0.0",
   "dependencies": {
     "@clack/prompts": "^1.2.0",

@@ -1,7 +1,6 @@
 # gitch
 
 [![CI](https://github.com/Joselay/gitch/actions/workflows/ci.yml/badge.svg)](https://github.com/Joselay/gitch/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/gitch)](https://www.npmjs.com/package/gitch)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 Switch between multiple Git accounts in seconds. Manage SSH keys, git configs, and GitHub CLI auth per profile.
@@ -18,13 +17,7 @@ Managing multiple Git accounts (work, personal, open source) usually means manua
 
 ## Install
 
-Requires [Bun](https://bun.sh) runtime.
-
-```bash
-bun install -g gitch
-```
-
-Or clone and link locally:
+Requires [Bun](https://bun.sh) runtime. Until this package is published under a name you control, install from source:
 
 ```bash
 git clone https://github.com/Joselay/gitch.git
