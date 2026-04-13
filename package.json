@@ -10,6 +10,18 @@
     "gitch": "./index.ts"
   },
   "description": "Git account switcher — manage multiple Git identities",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Joselay/gitch.git"
+  },
+  "keywords": [
+    "git",
+    "ssh",
+    "git-account",
+    "git-profile",
+    "cli"
+  ],
   "files": [
     "src",
     "index.ts"
