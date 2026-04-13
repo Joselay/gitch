@@ -8,6 +8,7 @@ import {
   copyToClipboard,
   openInBrowser,
 } from "../core/ssh.ts";
+import { isGhInstalled, addSSHKey } from "../core/gh.ts";
 import type { Profile } from "../types.ts";
 
 async function promptSSHKey(
@@ -88,13 +89,29 @@ async function promptSSHKey(
   return choice as string;
 }
 
-async function promptGitHubSetup(sshKeyPath: string): Promise<void> {
+async function promptGitHubSetup(
+  sshKeyPath: string,
+  profileName: string,
+): Promise<void> {
   const addToGitHub = await p.confirm({
     message: "Add this SSH key to GitHub?",
     initialValue: true,
   });
 
   if (p.isCancel(addToGitHub) || !addToGitHub) return;
+
+  if (await isGhInstalled()) {
+    const s = p.spinner();
+    s.start("Adding SSH key to GitHub via gh CLI...");
+    try {
+      const pubKeyPath = expandPath(sshKeyPath) + ".pub";
+      await addSSHKey(pubKeyPath, `gitch:${profileName}`);
+      s.stop("SSH key added to GitHub!");
+      return;
+    } catch {
+      s.stop("gh ssh-key add failed — falling back to manual method.");
+    }
+  }
 
   try {
     const pubKey = await getPublicKey(sshKeyPath);
@@ -159,7 +176,7 @@ export async function promptProfile(name: string): Promise<Profile | null> {
   }
 
   if (ghUsername?.trim()) {
-    await promptGitHubSetup(sshKeyPath);
+    await promptGitHubSetup(sshKeyPath, name);
   }
 
   p.outro("Profile created!");

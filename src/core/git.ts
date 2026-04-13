@@ -36,6 +36,29 @@ export async function setLocalConfig(
   cwd ? await cmd.cwd(cwd) : await cmd;
 }
 
+export async function setUrlRewrite(
+  profileName: string,
+): Promise<void> {
+  const key = `url.git@github.com-${profileName}:.insteadOf`;
+  await Bun.$`git config --global ${key} git@github.com:`.quiet();
+}
+
+export async function clearUrlRewrites(): Promise<void> {
+  try {
+    const result =
+      await Bun.$`git config --global --get-regexp ^url\\.git@github\\.com-`.quiet();
+    const lines = result.text().trim().split("\n").filter(Boolean);
+    for (const line of lines) {
+      const key = line.split(" ")[0];
+      if (key) {
+        await Bun.$`git config --global --unset ${key}`.quiet();
+      }
+    }
+  } catch {
+    // no existing rewrites, that's fine
+  }
+}
+
 export async function unsetLocalConfig(
   key: string,
   cwd?: string,

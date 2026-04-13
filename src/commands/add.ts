@@ -12,7 +12,9 @@ import {
   sshKeyExists,
   expandPath,
   generateSSHKey,
+  testSSHConnection,
 } from "../core/ssh.ts";
+import { isGhInstalled, addSSHKey } from "../core/gh.ts";
 import { createBackup } from "../core/backup.ts";
 import { promptProfile } from "../ui/prompts.ts";
 import * as out from "../ui/output.ts";
@@ -23,6 +25,8 @@ interface AddOptions {
   sshKey?: string;
   generateKey?: boolean;
   ghUsername?: string;
+  addToGithub?: boolean;
+  testSsh?: boolean;
 }
 
 export function registerAdd(program: CAC): void {
@@ -33,6 +37,8 @@ export function registerAdd(program: CAC): void {
     .option("--ssh-key <path>", "SSH private key path (headless)")
     .option("--generate-key", "Generate a new SSH key (headless)")
     .option("--gh-username <username>", "GitHub username (headless)")
+    .option("--add-to-github", "Add SSH key to GitHub via gh CLI (headless)")
+    .option("--test-ssh", "Test SSH connection after setup")
     .action(async (profileName: string, options: AddOptions) => {
       if (!isValidProfileName(profileName)) {
         out.error(
@@ -66,9 +72,35 @@ export function registerAdd(program: CAC): void {
       await saveConfig(updated);
       await addHostAlias(profileName, profile.sshKeyPath);
 
+      if (headless && options.addToGithub) {
+        if (await isGhInstalled()) {
+          try {
+            const pubKeyPath = expandPath(profile.sshKeyPath) + ".pub";
+            await addSSHKey(pubKeyPath, `gitch:${profileName}`);
+            out.success("SSH key added to GitHub via gh CLI.");
+          } catch {
+            out.warn("Failed to add SSH key to GitHub. Add it manually.");
+          }
+        } else {
+          out.warn("GitHub CLI (gh) not installed — skipping SSH key upload.");
+        }
+      }
+
       out.success(`Profile "${profileName}" added.`);
       out.dim(`  SSH alias: github.com-${profileName}`);
       out.dim(`  Switch to it: gitch use ${profileName}`);
+
+      if (options.testSsh) {
+        out.info("Testing SSH connection...");
+        const ok = await testSSHConnection(profileName);
+        if (ok) {
+          out.success(`SSH connection to github.com-${profileName} verified!`);
+        } else {
+          out.warn(
+            "SSH test did not confirm authentication. Ensure the key is added to GitHub.",
+          );
+        }
+      }
     });
 }
 

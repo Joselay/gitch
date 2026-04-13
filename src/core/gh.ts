@@ -11,6 +11,13 @@ export async function switchUser(username: string): Promise<void> {
   await Bun.$`gh auth switch --user ${username}`.quiet();
 }
 
+export async function addSSHKey(
+  pubKeyPath: string,
+  title: string,
+): Promise<void> {
+  await Bun.$`gh ssh-key add ${pubKeyPath} --title ${title}`.quiet();
+}
+
 export async function currentUser(): Promise<string | null> {
   try {
     const result =

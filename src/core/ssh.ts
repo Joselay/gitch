@@ -153,6 +153,23 @@ export async function getPublicKey(privatePath: string): Promise<string> {
   return (await Bun.file(pubPath).text()).trim();
 }
 
+export async function testSSHConnection(
+  profileName: string,
+): Promise<boolean> {
+  try {
+    const proc = Bun.spawn(
+      ["ssh", "-T", `git@github.com-${profileName}`, "-o", "StrictHostKeyChecking=accept-new"],
+      { stdout: "pipe", stderr: "pipe" },
+    );
+    await proc.exited;
+    const stderr = await new Response(proc.stderr).text();
+    // GitHub returns exit code 1 but prints "successfully authenticated"
+    return stderr.includes("successfully authenticated");
+  } catch {
+    return false;
+  }
+}
+
 export async function copyToClipboard(text: string): Promise<void> {
   const cmd =
     process.platform === "darwin"

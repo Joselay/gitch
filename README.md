@@ -93,8 +93,11 @@ gitch add work \
   --ssh-key ~/.ssh/id_ed25519_work \
   --gh-username johndoe
 
-# Generate SSH key automatically
-gitch add deploy --name "Deploy" --email "deploy@ci.com" --generate-key
+# Generate SSH key and add it to GitHub automatically
+gitch add deploy --name "Deploy" --email "deploy@ci.com" --generate-key --add-to-github
+
+# Test SSH connection after setup
+gitch add work --name "John" --email "john@work.com" --generate-key --test-ssh
 
 # Remove without confirmation
 gitch remove old-profile --yes
@@ -102,10 +105,14 @@ gitch remove old-profile --yes
 
 ## How It Works
 
+Following [GitHub's official best practices](https://docs.github.com/en/account-and-profile/how-tos/account-management/managing-multiple-accounts) for managing multiple accounts:
+
 - Profiles are stored in `~/.gitch/config.json`
-- Each profile gets an SSH host alias in `~/.ssh/config` (managed via marker comments)
-- `gitch use` sets `git config --global user.name/email` and optionally switches `gh auth`
+- Each profile gets an SSH host alias in `~/.ssh/config` with `IdentitiesOnly yes` (prevents key conflicts)
+- `gitch use` sets `git config --global user.name/email`, applies `url.*.insteadOf` rewriting (so existing clones use the correct SSH key), and optionally switches `gh auth`
 - `gitch bind` sets `git config --local user.name/email` for per-directory identity
+- `gitch add --add-to-github` uses `gh ssh-key add` to register keys programmatically
+- `gitch add --test-ssh` verifies the SSH connection works after setup
 - Automatic backups are created before every config change
 
 ## Development
