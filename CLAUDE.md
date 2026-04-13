@@ -19,6 +19,8 @@ bun link              # install globally as `gitch` for manual testing
 
 ## Architecture
 
+Entry point: `index.ts` (shebang `#!/usr/bin/env bun`) — just imports `src/cli.ts`.
+
 ```
 src/
   cli.ts              # cac program + command registration
@@ -53,3 +55,5 @@ tests/                # bun:test unit tests
 - Use `process.stdout.write()` + ansis for output — no `console.log`
 - Commands export `registerX(program: CAC)` and are wired in `cli.ts`
 - `gh` CLI integration is optional — skip gracefully if not installed
+- `noUncheckedIndexedAccess` is enabled in `tsconfig.json` — indexed access returns `T | undefined`, so narrow before using
+- CLI version is hardcoded in `cli.ts` (`cli.version("1.0.0")`) separately from `package.json` — update both when bumping
