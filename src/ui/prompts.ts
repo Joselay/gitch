@@ -16,7 +16,7 @@ import {
 import type { Profile } from "../types.ts";
 import { CancelledError } from "../types.ts";
 
-function cancelGuard(value: unknown, message: string): asserts value is string | boolean {
+function cancelGuard<T>(value: T | symbol, message: string): asserts value is T {
   if (p.isCancel(value)) {
     p.cancel(message);
     throw new CancelledError();

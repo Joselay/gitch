@@ -172,10 +172,23 @@ export async function getPublicKey(privatePath: string): Promise<string> {
 export async function testSSHConnection(profileName: string): Promise<boolean> {
   try {
     const proc = Bun.spawn(
-      ["ssh", "-T", `git@github.com-${profileName}`, "-o", "StrictHostKeyChecking=accept-new"],
+      [
+        "ssh",
+        "-T",
+        `git@github.com-${profileName}`,
+        "-o",
+        "StrictHostKeyChecking=accept-new",
+        "-o",
+        "ConnectTimeout=10",
+      ],
       { stdout: "pipe", stderr: "pipe" },
     );
-    await proc.exited;
+    const timeout = setTimeout(() => proc.kill(), 15_000);
+    try {
+      await proc.exited;
+    } finally {
+      clearTimeout(timeout);
+    }
     const stderr = await new Response(proc.stderr).text();
     // GitHub returns exit code 1 but prints "successfully authenticated"
     return stderr.includes("successfully authenticated");

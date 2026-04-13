@@ -75,7 +75,15 @@ export async function applyProfileLocally(
 }
 
 export async function clearProfileLocally(cwd?: string): Promise<void> {
-  await unsetLocalConfig("user.name", cwd);
-  await unsetLocalConfig("user.email", cwd);
-  await unsetLocalConfig("core.sshCommand", cwd);
+  const errors: Error[] = [];
+  for (const key of ["user.name", "user.email", "core.sshCommand"]) {
+    try {
+      await unsetLocalConfig(key, cwd);
+    } catch (err) {
+      errors.push(err instanceof Error ? err : new Error(String(err)));
+    }
+  }
+  if (errors.length > 0) {
+    throw new Error(`Failed to clear local config: ${errors.map((e) => e.message).join(", ")}`);
+  }
 }

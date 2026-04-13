@@ -8,25 +8,25 @@ function configWarn(message: string): void {
   process.stderr.write(`⚠ ${message}\n`);
 }
 
-const CONFIG_DIR = Bun.env.GITCH_CONFIG_DIR ?? join(homedir(), ".gitch");
-const CONFIG_PATH = join(CONFIG_DIR, "config.json");
-const BACKUPS_DIR = join(CONFIG_DIR, "backups");
+function getConfigDir(): string {
+  return Bun.env.GITCH_CONFIG_DIR ?? join(homedir(), ".gitch");
+}
 
 export function getConfigPath(): string {
-  return CONFIG_PATH;
+  return join(getConfigDir(), "config.json");
 }
 
 export function getBackupsDir(): string {
-  return BACKUPS_DIR;
+  return join(getConfigDir(), "backups");
 }
 
 export async function ensureConfigDir(): Promise<void> {
-  await mkdir(CONFIG_DIR, { recursive: true, mode: 0o700 });
-  await mkdir(BACKUPS_DIR, { recursive: true, mode: 0o700 });
+  await mkdir(getConfigDir(), { recursive: true, mode: 0o700 });
+  await mkdir(getBackupsDir(), { recursive: true, mode: 0o700 });
 }
 
 export async function loadConfig(): Promise<GitchConfig> {
-  const file = Bun.file(CONFIG_PATH);
+  const file = Bun.file(getConfigPath());
   if (!(await file.exists())) {
     return createDefaultConfig();
   }
@@ -89,8 +89,8 @@ function isValidProfile(value: unknown): value is Profile {
 
 export async function saveConfig(config: GitchConfig): Promise<void> {
   await ensureConfigDir();
-  await Bun.write(CONFIG_PATH, `${JSON.stringify(config, null, 2)}\n`);
-  await chmod(CONFIG_PATH, 0o600);
+  await Bun.write(getConfigPath(), `${JSON.stringify(config, null, 2)}\n`);
+  await chmod(getConfigPath(), 0o600);
 }
 
 export function getProfile(config: GitchConfig, name: string): Profile | undefined {
