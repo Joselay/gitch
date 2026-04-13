@@ -1,3 +1,4 @@
+import { chmod, unlink } from "node:fs/promises";
 import { join } from "node:path";
 import { ensureConfigDir, getBackupsDir, getConfigPath } from "./config.ts";
 
@@ -13,7 +14,7 @@ export async function createBackup(): Promise<string | null> {
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
   const backupPath = join(getBackupsDir(), `config-${timestamp}.json`);
   await Bun.write(backupPath, configFile);
-  await Bun.$`chmod 600 ${backupPath}`.quiet();
+  await chmod(backupPath, 0o600);
   await pruneBackups();
   return backupPath;
 }
@@ -33,6 +34,6 @@ async function pruneBackups(): Promise<void> {
   const toDelete = entries.slice(0, entries.length - MAX_BACKUPS);
 
   for (const file of toDelete) {
-    await Bun.$`rm ${join(getBackupsDir(), file)}`.quiet();
+    await unlink(join(getBackupsDir(), file));
   }
 }

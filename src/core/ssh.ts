@@ -1,3 +1,4 @@
+import { chmod, mkdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 
@@ -36,10 +37,9 @@ async function readSSHConfig(): Promise<string> {
 }
 
 async function writeSSHConfig(content: string): Promise<void> {
-  await Bun.$`mkdir -p ${SSH_DIR}`.quiet();
-  await Bun.$`chmod 700 ${SSH_DIR}`.quiet();
+  await mkdir(SSH_DIR, { recursive: true, mode: 0o700 });
   await Bun.write(SSH_CONFIG_PATH, content);
-  await Bun.$`chmod 600 ${SSH_CONFIG_PATH}`.quiet();
+  await chmod(SSH_CONFIG_PATH, 0o600);
 }
 
 function removeBlock(content: string, profileName: string): string {
@@ -133,8 +133,7 @@ export async function discoverSSHKeys(): Promise<string[]> {
 
 export async function generateSSHKey(email: string, name: string): Promise<string> {
   const keyPath = join(SSH_DIR, `id_ed25519_${name}`);
-  await Bun.$`mkdir -p ${SSH_DIR}`.quiet();
-  await Bun.$`chmod 700 ${SSH_DIR}`.quiet();
+  await mkdir(SSH_DIR, { recursive: true, mode: 0o700 });
   const proc = Bun.spawn(["ssh-keygen", "-t", "ed25519", "-C", email, "-f", keyPath, "-N", ""], {
     stdout: "ignore",
     stderr: "pipe",
@@ -144,8 +143,8 @@ export async function generateSSHKey(email: string, name: string): Promise<strin
     const stderr = await new Response(proc.stderr).text();
     throw new Error(`ssh-keygen failed: ${stderr}`);
   }
-  await Bun.$`chmod 600 ${keyPath}`.quiet();
-  await Bun.$`chmod 644 ${keyPath}.pub`.quiet();
+  await chmod(keyPath, 0o600);
+  await chmod(`${keyPath}.pub`, 0o644);
   return `~/.ssh/id_ed25519_${name}`;
 }
 

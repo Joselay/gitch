@@ -1,3 +1,4 @@
+import { chmod, mkdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import ansis from "ansis";
@@ -21,7 +22,8 @@ export function getBackupsDir(): string {
 }
 
 export async function ensureConfigDir(): Promise<void> {
-  await Bun.$`mkdir -p ${CONFIG_DIR} ${BACKUPS_DIR}`.quiet();
+  await mkdir(CONFIG_DIR, { recursive: true, mode: 0o700 });
+  await mkdir(BACKUPS_DIR, { recursive: true, mode: 0o700 });
 }
 
 export async function loadConfig(): Promise<GitchConfig> {
@@ -63,7 +65,7 @@ export async function loadConfig(): Promise<GitchConfig> {
 export async function saveConfig(config: GitchConfig): Promise<void> {
   await ensureConfigDir();
   await Bun.write(CONFIG_PATH, `${JSON.stringify(config, null, 2)}\n`);
-  await Bun.$`chmod 600 ${CONFIG_PATH}`.quiet();
+  await chmod(CONFIG_PATH, 0o600);
 }
 
 export function getProfile(config: GitchConfig, name: string): Profile | undefined {
