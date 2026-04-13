@@ -1,13 +1,6 @@
 # Gitch — Git Account Switcher CLI
 
-Default to using Bun instead of Node.js.
-
-- Use `bun <file>` instead of `node <file>` or `ts-node <file>`
-- Use `bun test` instead of `jest` or `vitest`
-- Use `bun install` instead of `npm install` or `yarn install` or `pnpm install`
-- Use `bun run <script>` instead of `npm run <script>` or `yarn run <script>` or `pnpm run <script>`
-- Use `bunx <package> <command>` instead of `npx <package> <command>`
-- Bun automatically loads .env, so don't use dotenv.
+**Runtime: Bun** — use `bun` / `bunx` for everything (run, test, install, scripts). Bun auto-loads `.env`, so no dotenv.
 
 ## APIs
 
@@ -35,6 +28,18 @@ src/
   ui/                 # Output formatting (output.ts) with ansis, interactive prompts (prompts.ts) with @clack/prompts
 tests/                # bun:test unit tests
 ```
+
+## Adding a Command
+
+1. Create `src/commands/<name>.ts` — export `register<Name>(program: CAC)`
+2. Wire it in `src/cli.ts` with `register<Name>(program)`
+3. Add tests in `tests/<name>.test.ts`
+
+## Testing
+
+- Framework: `bun:test` (built-in, no extra deps)
+- Test files: `tests/config.test.ts`, `tests/ssh.test.ts`, `tests/bindings.test.ts`
+- Config tests use `GITCH_CONFIG_DIR` pointed at a temp directory to avoid touching real config
 
 ## Key Patterns
 
