@@ -9,6 +9,7 @@ When implementing changes that involve a dependency or API (Bun, cac, @clack/pro
 ## APIs
 
 - Prefer `Bun.file` / `Bun.write` over `node:fs`'s readFile/writeFile
+- Use `node:fs/promises` `mkdir`, `chmod`, `unlink` for filesystem operations — avoid shelling out for basic fs ops
 - `Bun.$\`cmd\`` (shell tagged template) instead of execa — use `.quiet()` to suppress output, `.cwd()` for directory, `.text()` to capture
 - `Bun.spawn()` for subprocesses needing stdin/stdout/stderr control (ssh-keygen, ssh -T, clipboard, browser open)
 - `process.stdout.write()` + ansis for normal output; `process.stderr.write()` + ansis for errors/warnings — no `console.log`
@@ -18,10 +19,13 @@ When implementing changes that involve a dependency or API (Bun, cac, @clack/pro
 ```bash
 bun test              # run all tests
 bun test tests/config.test.ts  # run a single test file
+bun run test:coverage # run tests with coverage
 bunx tsc --noEmit     # type check
 bun run lint          # lint with Biome
 bun run lint:fix      # auto-fix lint/format issues
-bun run index.ts      # run CLI locally
+bun run check         # lint + typecheck + test (all at once)
+bun --watch run index.ts  # run CLI locally with watch mode
+bun run build         # compile standalone binary to dist/gitch
 bun link              # install globally as `gitch` for manual testing
 ```
 
@@ -48,7 +52,7 @@ tests/                # bun:test unit tests
 ## Testing
 
 - Framework: `bun:test` (built-in, no extra deps)
-- Test files: `tests/config.test.ts`, `tests/ssh.test.ts`, `tests/bindings.test.ts`
+- Test files: `tests/config.test.ts`, `tests/ssh.test.ts`, `tests/bindings.test.ts`, `tests/output.test.ts`
 - Config tests use `GITCH_CONFIG_DIR` pointed at a temp directory to avoid touching real config
 
 ## Key Patterns
