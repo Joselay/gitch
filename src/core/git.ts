@@ -11,6 +11,14 @@ export async function setGlobalConfig(key: string, value: string): Promise<void>
   await Bun.$`git config --global ${key} ${value}`.quiet();
 }
 
+export async function unsetGlobalConfig(key: string): Promise<void> {
+  try {
+    await Bun.$`git config --global --unset ${key}`.quiet();
+  } catch {
+    // config key may already be unset, that's fine
+  }
+}
+
 export async function getLocalConfig(key: string, cwd?: string): Promise<string | null> {
   try {
     const base = Bun.$`git config --local ${key}`;

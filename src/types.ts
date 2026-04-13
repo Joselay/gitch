@@ -19,6 +19,13 @@ export interface GitchConfig {
   bindings: DirectoryBinding[];
 }
 
+export class CancelledError extends Error {
+  constructor(message = "Operation cancelled.") {
+    super(message);
+    this.name = "CancelledError";
+  }
+}
+
 export function createDefaultConfig(): GitchConfig {
   return {
     version: 1,

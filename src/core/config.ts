@@ -1,9 +1,12 @@
 import { chmod, mkdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import ansis from "ansis";
 import type { GitchConfig, Profile } from "../types.ts";
 import { createDefaultConfig } from "../types.ts";
+
+function configWarn(message: string): void {
+  process.stderr.write(`⚠ ${message}\n`);
+}
 
 const CONFIG_DIR = Bun.env.GITCH_CONFIG_DIR ?? join(homedir(), ".gitch");
 const CONFIG_PATH = join(CONFIG_DIR, "config.json");
@@ -35,9 +38,7 @@ export async function loadConfig(): Promise<GitchConfig> {
   try {
     raw = await file.json();
   } catch {
-    process.stderr.write(
-      `${ansis.yellow("⚠ Config file is corrupted — starting with a fresh config.")}\n`,
-    );
+    configWarn("Config file is corrupted — starting with a fresh config.");
     return createDefaultConfig();
   }
   if (
@@ -47,19 +48,47 @@ export async function loadConfig(): Promise<GitchConfig> {
     typeof (raw as Record<string, unknown>).profiles !== "object" ||
     (raw as Record<string, unknown>).profiles === null
   ) {
-    process.stderr.write(
-      `${ansis.yellow("⚠ Config file has an invalid structure — starting with a fresh config.")}\n`,
-    );
+    configWarn("Config file has an invalid structure — starting with a fresh config.");
     return createDefaultConfig();
   }
   const version = (raw as Record<string, unknown>).version;
   if (version !== 1) {
-    process.stderr.write(
-      `${ansis.yellow(`⚠ Config version ${String(version)} is not supported (expected 1) — starting with a fresh config.`)}\n`,
+    configWarn(
+      `Config version ${String(version)} is not supported (expected 1) — starting with a fresh config.`,
     );
     return createDefaultConfig();
   }
-  return raw as GitchConfig;
+
+  const rawProfiles = (raw as Record<string, unknown>).profiles as Record<string, unknown>;
+  const validatedProfiles: Record<string, Profile> = {};
+  for (const [key, value] of Object.entries(rawProfiles)) {
+    if (isValidProfile(value)) {
+      validatedProfiles[key] = value;
+    } else {
+      configWarn(`Profile "${key}" has missing or invalid fields — skipping it.`);
+    }
+  }
+
+  const config = raw as GitchConfig;
+  config.profiles = validatedProfiles;
+
+  if (config.activeProfile && !(config.activeProfile in validatedProfiles)) {
+    config.activeProfile = null;
+  }
+
+  return config;
+}
+
+function isValidProfile(value: unknown): value is Profile {
+  if (!value || typeof value !== "object") return false;
+  const p = value as Record<string, unknown>;
+  return (
+    typeof p.name === "string" &&
+    typeof p.gitName === "string" &&
+    typeof p.gitEmail === "string" &&
+    typeof p.sshKeyPath === "string" &&
+    typeof p.createdAt === "string"
+  );
 }
 
 export async function saveConfig(config: GitchConfig): Promise<void> {
