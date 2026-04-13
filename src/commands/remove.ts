@@ -29,10 +29,10 @@ export function registerRemove(program: CAC): void {
       }
 
       await createBackup();
-      await removeHostAlias(profileName);
 
       const updated = removeProfile(config, profileName);
       await saveConfig(updated);
+      await removeHostAlias(profileName);
 
       out.success(`Profile "${profileName}" removed.`);
     });

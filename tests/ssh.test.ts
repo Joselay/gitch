@@ -51,11 +51,11 @@ describe("isValidProfileName", () => {
 describe("buildSSHCommand", () => {
   test("builds command with tilde path", () => {
     const cmd = buildSSHCommand("~/.ssh/id_ed25519_work");
-    expect(cmd).toBe(`ssh -i ${homedir()}/.ssh/id_ed25519_work -o IdentitiesOnly=yes`);
+    expect(cmd).toBe(`ssh -i "${homedir()}/.ssh/id_ed25519_work" -o IdentitiesOnly=yes`);
   });
 
   test("builds command with absolute path", () => {
     const cmd = buildSSHCommand("/home/user/.ssh/key");
-    expect(cmd).toBe("ssh -i /home/user/.ssh/key -o IdentitiesOnly=yes");
+    expect(cmd).toBe('ssh -i "/home/user/.ssh/key" -o IdentitiesOnly=yes');
   });
 });

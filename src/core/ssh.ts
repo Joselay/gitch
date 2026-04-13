@@ -99,7 +99,7 @@ export async function hasHostAlias(profileName: string): Promise<boolean> {
 
 export function buildSSHCommand(sshKeyPath: string): string {
   const expanded = expandPath(sshKeyPath);
-  return `ssh -i ${expanded} -o IdentitiesOnly=yes`;
+  return `ssh -i "${expanded}" -o IdentitiesOnly=yes`;
 }
 
 export function expandPath(path: string): string {

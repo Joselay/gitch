@@ -32,6 +32,12 @@ export function heading(message: string): void {
   write(ansis.bold(message));
 }
 
+export function listItem(name: string, isActive: boolean): void {
+  const marker = isActive ? ansis.green("● ") : "  ";
+  const label = isActive ? ansis.green.bold(name) : name;
+  write(`${marker}${label}`);
+}
+
 export function profileCard(
   name: string,
   email: string,

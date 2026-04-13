@@ -136,7 +136,12 @@ async function manualKeyUpload(sshKeyPath: string): Promise<void> {
   }
 }
 
-export async function promptProfile(name: string): Promise<Profile | null> {
+export interface PromptProfileResult {
+  profile: Profile;
+  hostAliasConfigured: boolean;
+}
+
+export async function promptProfile(name: string): Promise<PromptProfileResult | null> {
   p.intro(`Creating profile: ${name}`);
 
   // Step 1: Detect GitHub account first to pre-fill fields
@@ -201,9 +206,11 @@ export async function promptProfile(name: string): Promise<Profile | null> {
   if (!sshKeyPath) return null;
 
   // Step 5: Upload SSH key to GitHub (skip if already working)
+  let hostAliasConfigured = false;
   if (ghUsername) {
     // Set up host alias first so we can test the connection
     await addHostAlias(name, sshKeyPath);
+    hostAliasConfigured = true;
     const s = p.spinner();
     s.start("Testing SSH connection...");
     const sshWorks = await testSSHConnection(name);
@@ -218,12 +225,15 @@ export async function promptProfile(name: string): Promise<Profile | null> {
   p.outro("Profile created!");
 
   return {
-    name,
-    gitName,
-    gitEmail,
-    sshKeyPath,
-    ghUsername,
-    createdAt: new Date().toISOString(),
+    profile: {
+      name,
+      gitName,
+      gitEmail,
+      sshKeyPath,
+      ghUsername,
+      createdAt: new Date().toISOString(),
+    },
+    hostAliasConfigured,
   };
 }
 

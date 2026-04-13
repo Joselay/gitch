@@ -51,11 +51,18 @@ export function registerAdd(program: CAC): void {
 
       const headless = !!(options.name && options.email);
       let profile: Profile | null;
+      let hostAliasConfigured = false;
 
       if (headless) {
         profile = await buildProfileHeadless(profileName, options);
       } else {
-        profile = await promptProfile(profileName);
+        const result = await promptProfile(profileName);
+        if (result) {
+          profile = result.profile;
+          hostAliasConfigured = result.hostAliasConfigured;
+        } else {
+          profile = null;
+        }
       }
 
       if (!profile) {
@@ -65,7 +72,10 @@ export function registerAdd(program: CAC): void {
       await createBackup();
       const updated = addProfile(config, profile);
       await saveConfig(updated);
-      await addHostAlias(profileName, profile.sshKeyPath);
+
+      if (!hostAliasConfigured) {
+        await addHostAlias(profileName, profile.sshKeyPath);
+      }
 
       if (headless && options.addToGithub) {
         if (await isGhInstalled()) {

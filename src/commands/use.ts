@@ -20,13 +20,23 @@ export function registerUse(program: CAC): void {
 
       await createBackup();
 
-      await setGlobalConfig("user.name", profile.gitName);
-      await setGlobalConfig("user.email", profile.gitEmail);
-      out.success(`Git config → ${profile.gitName} <${profile.gitEmail}>`);
+      try {
+        await setGlobalConfig("user.name", profile.gitName);
+        await setGlobalConfig("user.email", profile.gitEmail);
+        out.success(`Git config → ${profile.gitName} <${profile.gitEmail}>`);
+      } catch {
+        out.error("Failed to set global git config. Is git installed?");
+        process.exit(1);
+      }
 
-      await clearUrlRewrites();
-      await setUrlRewrite(profileName);
-      out.success(`SSH routing → git@github.com-${profileName}`);
+      try {
+        await clearUrlRewrites();
+        await setUrlRewrite(profileName);
+        out.success(`SSH routing → git@github.com-${profileName}`);
+      } catch {
+        out.error("Failed to set SSH URL rewrite in git config.");
+        process.exit(1);
+      }
 
       if (profile.ghUsername) {
         if (await isGhInstalled()) {

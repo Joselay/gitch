@@ -12,6 +12,13 @@ import { registerUnbind } from "./commands/unbind.ts";
 import { registerUse } from "./commands/use.ts";
 import { registerWhoami } from "./commands/whoami.ts";
 
+process.on("unhandledRejection", (err) => {
+  process.stderr.write(
+    `${ansis.red(`✗ ${err instanceof Error ? err.message : "An unexpected error occurred."}`)}\n`,
+  );
+  process.exit(1);
+});
+
 const cli = cac("gitch");
 
 registerAdd(cli);
