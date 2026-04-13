@@ -1,12 +1,11 @@
-import type { Command } from "commander";
+import type { CAC } from "cac";
 import { loadConfig, getProfile, getBindingForPath } from "../core/config.ts";
 import { getLocalConfig, setLocalConfig } from "../core/git.ts";
 
-export function registerResolve(program: Command): void {
-  const cmd = program
-    .command("_resolve", { hidden: true })
-    .description("(internal) Resolve profile for current directory");
-  cmd.action(async () => {
+export function registerResolve(program: CAC): void {
+  program
+    .command("_resolve", "(internal) Resolve profile for current directory")
+    .action(async () => {
       const config = await loadConfig();
       const cwd = process.cwd();
 

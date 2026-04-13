@@ -1,13 +1,12 @@
-import type { Command } from "commander";
+import type { CAC } from "cac";
 import { loadConfig, getProfile } from "../core/config.ts";
 import { getGlobalConfig } from "../core/git.ts";
 import * as out from "../ui/output.ts";
 import { basename } from "node:path";
 
-export function registerWhoami(program: Command): void {
+export function registerWhoami(program: CAC): void {
   program
-    .command("whoami")
-    .description("Show the current git identity")
+    .command("whoami", "Show the current git identity")
     .action(async () => {
       const config = await loadConfig();
 

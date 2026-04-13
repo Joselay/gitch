@@ -1,4 +1,4 @@
-import type { Command } from "commander";
+import type { CAC } from "cac";
 import {
   loadConfig,
   saveConfig,
@@ -10,10 +10,9 @@ import { createBackup } from "../core/backup.ts";
 import { promptProfile } from "../ui/prompts.ts";
 import * as out from "../ui/output.ts";
 
-export function registerAdd(program: Command): void {
+export function registerAdd(program: CAC): void {
   program
-    .command("add <profile>")
-    .description("Create a new git profile")
+    .command("add <profile>", "Create a new git profile")
     .action(async (profileName: string) => {
       if (!isValidProfileName(profileName)) {
         out.error(

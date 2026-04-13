@@ -28,19 +28,20 @@ bun link              # install globally as `gitch` for manual testing
 
 ```
 src/
-  cli.ts              # Commander program + command registration
+  cli.ts              # cac program + command registration
   types.ts            # GitchConfig, Profile, DirectoryBinding interfaces
   commands/           # One file per CLI command (add, use, whoami, status, remove, list, bind, unbind, init, resolve)
   core/               # Business logic (config.ts, git.ts, ssh.ts, gh.ts, backup.ts)
-  ui/                 # Output formatting (output.ts) with picocolors, interactive prompts (prompts.ts) with @clack/prompts
+  ui/                 # Output formatting (output.ts) with ansis, interactive prompts (prompts.ts) with @clack/prompts
 tests/                # bun:test unit tests
 ```
 
 ## Key Patterns
 
+- Dependencies must be TypeScript-first (written in TS, ships own types — no `@types/` shims)
 - Config stored at `~/.gitch/config.json`, override with `GITCH_CONFIG_DIR` env var
 - SSH config blocks use `# gitch:<profile> -- START/END` marker comments — never touch lines outside markers
 - Config functions are pure (take config, return new config) — only `loadConfig`/`saveConfig` do I/O
-- Use `process.stdout.write()` + picocolors for output — no `console.log`
-- Commands export `registerX(program: Command)` and are wired in `cli.ts`
+- Use `process.stdout.write()` + ansis for output — no `console.log`
+- Commands export `registerX(program: CAC)` and are wired in `cli.ts`
 - `gh` CLI integration is optional — skip gracefully if not installed

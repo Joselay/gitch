@@ -1,35 +1,35 @@
-import pc from "picocolors";
+import ansis from "ansis";
 
 function write(message: string): void {
   process.stdout.write(`${message}\n`);
 }
 
 export function success(message: string): void {
-  write(pc.green(`✓ ${message}`));
+  write(ansis.green(`✓ ${message}`));
 }
 
 export function error(message: string): void {
-  process.stderr.write(`${pc.red(`✗ ${message}`)}\n`);
+  process.stderr.write(`${ansis.red(`✗ ${message}`)}\n`);
 }
 
 export function warn(message: string): void {
-  write(pc.yellow(`⚠ ${message}`));
+  write(ansis.yellow(`⚠ ${message}`));
 }
 
 export function info(message: string): void {
-  write(pc.cyan(message));
+  write(ansis.cyan(message));
 }
 
 export function dim(message: string): void {
-  write(pc.dim(message));
+  write(ansis.dim(message));
 }
 
 export function label(key: string, value: string): void {
-  write(`  ${pc.bold(key)}: ${value}`);
+  write(`  ${ansis.bold(key)}: ${value}`);
 }
 
 export function heading(message: string): void {
-  write(pc.bold(message));
+  write(ansis.bold(message));
 }
 
 export function profileCard(
@@ -39,8 +39,8 @@ export function profileCard(
   ghUser: string | undefined,
   isActive: boolean,
 ): void {
-  const marker = isActive ? pc.green("● ") : pc.dim("○ ");
-  const profileName = isActive ? pc.green(pc.bold(name)) : pc.bold(name);
+  const marker = isActive ? ansis.green("● ") : ansis.dim("○ ");
+  const profileName = isActive ? ansis.green.bold(name) : ansis.bold(name);
   write(`${marker}${profileName}`);
   label("  Email", email);
   label("  SSH Key", sshKey);

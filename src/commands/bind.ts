@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import type { Command } from "commander";
+import type { CAC } from "cac";
 import {
   loadConfig,
   saveConfig,
@@ -10,12 +10,10 @@ import { setLocalConfig } from "../core/git.ts";
 import { createBackup } from "../core/backup.ts";
 import * as out from "../ui/output.ts";
 
-export function registerBind(program: Command): void {
+export function registerBind(program: CAC): void {
   program
-    .command("bind <profile>")
-    .argument("[path]", "directory to bind", ".")
-    .description("Bind a directory to a git profile")
-    .action(async (profileName: string, path: string) => {
+    .command("bind <profile> [path]", "Bind a directory to a git profile")
+    .action(async (profileName: string, path: string | undefined) => {
       const config = await loadConfig();
       const profile = getProfile(config, profileName);
 
@@ -25,7 +23,7 @@ export function registerBind(program: Command): void {
         process.exit(1);
       }
 
-      const absolutePath = resolve(path);
+      const absolutePath = resolve(path ?? ".");
 
       await createBackup();
 

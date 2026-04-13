@@ -1,4 +1,4 @@
-import type { Command } from "commander";
+import type { CAC } from "cac";
 import {
   loadConfig,
   saveConfig,
@@ -10,10 +10,9 @@ import { createBackup } from "../core/backup.ts";
 import { confirmAction } from "../ui/prompts.ts";
 import * as out from "../ui/output.ts";
 
-export function registerRemove(program: Command): void {
+export function registerRemove(program: CAC): void {
   program
-    .command("remove <profile>")
-    .description("Remove a git profile")
+    .command("remove <profile>", "Remove a git profile")
     .action(async (profileName: string) => {
       const config = await loadConfig();
 

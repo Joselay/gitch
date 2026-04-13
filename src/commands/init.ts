@@ -1,4 +1,4 @@
-import type { Command } from "commander";
+import type { CAC } from "cac";
 import * as out from "../ui/output.ts";
 
 const ZSH_HOOK = `_gitch_chpwd() {
@@ -20,10 +20,9 @@ const BASH_HOOK = `_gitch_prompt() {
 }
 PROMPT_COMMAND="_gitch_prompt;\${PROMPT_COMMAND}"`;
 
-export function registerInit(program: Command): void {
+export function registerInit(program: CAC): void {
   program
-    .command("init <shell>")
-    .description("Output shell hook for auto-switching (zsh or bash)")
+    .command("init <shell>", "Output shell hook for auto-switching (zsh or bash)")
     .action((shell: string) => {
       switch (shell) {
         case "zsh":

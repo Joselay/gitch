@@ -1,5 +1,5 @@
 import { resolve } from "node:path";
-import type { Command } from "commander";
+import type { CAC } from "cac";
 import {
   loadConfig,
   saveConfig,
@@ -9,13 +9,11 @@ import {
 import { createBackup } from "../core/backup.ts";
 import * as out from "../ui/output.ts";
 
-export function registerUnbind(program: Command): void {
+export function registerUnbind(program: CAC): void {
   program
-    .command("unbind")
-    .argument("[path]", "directory to unbind", ".")
-    .description("Remove directory binding")
-    .action(async (path: string) => {
-      const absolutePath = resolve(path);
+    .command("unbind [path]", "Remove directory binding")
+    .action(async (path: string | undefined) => {
+      const absolutePath = resolve(path ?? ".");
       const config = await loadConfig();
 
       const binding = getBindingForPath(config, absolutePath);

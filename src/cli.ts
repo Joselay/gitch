@@ -1,4 +1,4 @@
-import { Command } from "commander";
+import cac from "cac";
 import { registerAdd } from "./commands/add.ts";
 import { registerUse } from "./commands/use.ts";
 import { registerWhoami } from "./commands/whoami.ts";
@@ -10,20 +10,19 @@ import { registerUnbind } from "./commands/unbind.ts";
 import { registerInit } from "./commands/init.ts";
 import { registerResolve } from "./commands/resolve.ts";
 
-const program = new Command()
-  .name("gitch")
-  .description("Git account switcher — manage multiple Git identities")
-  .version("1.0.0");
+const cli = cac("gitch");
 
-registerAdd(program);
-registerUse(program);
-registerWhoami(program);
-registerStatus(program);
-registerRemove(program);
-registerList(program);
-registerBind(program);
-registerUnbind(program);
-registerInit(program);
-registerResolve(program);
+registerAdd(cli);
+registerUse(cli);
+registerWhoami(cli);
+registerStatus(cli);
+registerRemove(cli);
+registerList(cli);
+registerBind(cli);
+registerUnbind(cli);
+registerInit(cli);
+registerResolve(cli);
 
-program.parse();
+cli.help();
+cli.version("1.0.0");
+cli.parse();

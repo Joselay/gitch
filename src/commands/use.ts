@@ -1,4 +1,4 @@
-import type { Command } from "commander";
+import type { CAC } from "cac";
 import {
   loadConfig,
   saveConfig,
@@ -10,10 +10,9 @@ import { isGhInstalled, switchUser } from "../core/gh.ts";
 import { createBackup } from "../core/backup.ts";
 import * as out from "../ui/output.ts";
 
-export function registerUse(program: Command): void {
+export function registerUse(program: CAC): void {
   program
-    .command("use <profile>")
-    .description("Switch to a git profile")
+    .command("use <profile>", "Switch to a git profile")
     .action(async (profileName: string) => {
       const config = await loadConfig();
       const profile = getProfile(config, profileName);

@@ -1,12 +1,11 @@
-import type { Command } from "commander";
+import type { CAC } from "cac";
 import { loadConfig, getProfileNames } from "../core/config.ts";
-import pc from "picocolors";
+import ansis from "ansis";
 import * as out from "../ui/output.ts";
 
-export function registerList(program: Command): void {
+export function registerList(program: CAC): void {
   program
-    .command("list")
-    .description("List all profile names")
+    .command("list", "List all profile names")
     .action(async () => {
       const config = await loadConfig();
       const names = getProfileNames(config);
@@ -19,8 +18,8 @@ export function registerList(program: Command): void {
 
       for (const name of names) {
         const isActive = config.activeProfile === name;
-        const marker = isActive ? pc.green("● ") : "  ";
-        const label = isActive ? pc.green(pc.bold(name)) : name;
+        const marker = isActive ? ansis.green("● ") : "  ";
+        const label = isActive ? ansis.green.bold(name) : name;
         process.stdout.write(`${marker}${label}\n`);
       }
     });

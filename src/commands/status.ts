@@ -1,12 +1,11 @@
-import type { Command } from "commander";
+import type { CAC } from "cac";
 import { loadConfig, getProfileNames } from "../core/config.ts";
 import * as out from "../ui/output.ts";
 import { basename } from "node:path";
 
-export function registerStatus(program: Command): void {
+export function registerStatus(program: CAC): void {
   program
-    .command("status")
-    .description("Show all profiles and current status")
+    .command("status", "Show all profiles and current status")
     .action(async () => {
       const config = await loadConfig();
       const names = getProfileNames(config);
