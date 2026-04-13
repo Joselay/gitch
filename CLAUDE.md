@@ -29,6 +29,13 @@ bun run build         # compile standalone binary to dist/gitch
 bun link              # install globally as `gitch` for manual testing
 ```
 
+## Code Style (Biome)
+
+- Line width: 100
+- Double quotes, semicolons, trailing commas
+- `noConsole: "error"` — enforced by linter, use `process.stdout.write()` / `process.stderr.write()` instead
+- Unused variables and imports are errors
+
 ## Architecture
 
 Entry point: `index.ts` (shebang `#!/usr/bin/env bun`) — just imports `src/cli.ts`.
@@ -52,7 +59,7 @@ tests/                # bun:test unit tests
 ## Testing
 
 - Framework: `bun:test` (built-in, no extra deps)
-- Test files: `tests/config.test.ts`, `tests/ssh.test.ts`, `tests/bindings.test.ts`, `tests/output.test.ts`
+- Test files live in `tests/*.test.ts`
 - Config tests use `GITCH_CONFIG_DIR` pointed at a temp directory to avoid touching real config
 
 ## Key Patterns
@@ -65,7 +72,6 @@ tests/                # bun:test unit tests
 - Config stored at `~/.gitch/config.json`, override with `GITCH_CONFIG_DIR` env var
 - SSH config blocks use `# gitch:<profile> -- START/END` marker comments — never touch lines outside markers
 - Config functions are pure (take config, return new config) — only `loadConfig`/`saveConfig` do I/O
-- Use `process.stdout.write()` + ansis for output, `process.stderr.write()` + ansis for errors/warnings — no `console.log`
 - Commands export `registerX(program: CAC)` and are wired in `cli.ts`
 - Mutating commands call `createBackup()` before config changes — max 10 backups in `~/.gitch/backups/`, auto-pruned
 - Config and backup files are `chmod 600`, SSH dirs are `chmod 700` — preserve these permissions
