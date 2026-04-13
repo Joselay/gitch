@@ -5,6 +5,10 @@ import { registerWhoami } from "./commands/whoami.ts";
 import { registerStatus } from "./commands/status.ts";
 import { registerRemove } from "./commands/remove.ts";
 import { registerList } from "./commands/list.ts";
+import { registerBind } from "./commands/bind.ts";
+import { registerUnbind } from "./commands/unbind.ts";
+import { registerInit } from "./commands/init.ts";
+import { registerResolve } from "./commands/resolve.ts";
 
 const program = new Command()
   .name("gitch")
@@ -17,5 +21,9 @@ registerWhoami(program);
 registerStatus(program);
 registerRemove(program);
 registerList(program);
+registerBind(program);
+registerUnbind(program);
+registerInit(program);
+registerResolve(program);
 
 program.parse();

@@ -83,3 +83,29 @@ export function profileExists(config: GitchConfig, name: string): boolean {
 export function getProfileNames(config: GitchConfig): string[] {
   return Object.keys(config.profiles);
 }
+
+export function addBinding(
+  config: GitchConfig,
+  path: string,
+  profileName: string,
+): GitchConfig {
+  const filtered = config.bindings.filter((b) => b.path !== path);
+  return {
+    ...config,
+    bindings: [...filtered, { path, profile: profileName }],
+  };
+}
+
+export function removeBinding(config: GitchConfig, path: string): GitchConfig {
+  return {
+    ...config,
+    bindings: config.bindings.filter((b) => b.path !== path),
+  };
+}
+
+export function getBindingForPath(
+  config: GitchConfig,
+  path: string,
+): { path: string; profile: string } | undefined {
+  return config.bindings.find((b) => b.path === path);
+}
