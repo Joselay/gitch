@@ -1,4 +1,5 @@
 import cac from "cac";
+import ansis from "ansis";
 import { registerAdd } from "./commands/add.ts";
 import { registerUse } from "./commands/use.ts";
 import { registerWhoami } from "./commands/whoami.ts";
@@ -30,7 +31,7 @@ try {
   cli.parse();
 } catch (err) {
   process.stderr.write(
-    `\x1b[31m✗ ${err instanceof Error ? err.message : "An unexpected error occurred."}\x1b[0m\n`,
+    `${ansis.red(`✗ ${err instanceof Error ? err.message : "An unexpected error occurred."}`)}\n`,
   );
   process.exit(1);
 }

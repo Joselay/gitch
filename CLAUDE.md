@@ -4,8 +4,10 @@
 
 ## APIs
 
-- Prefer `Bun.file` over `node:fs`'s readFile/writeFile
-- Bun.$`ls` instead of execa.
+- Prefer `Bun.file` / `Bun.write` over `node:fs`'s readFile/writeFile
+- `Bun.$\`cmd\`` (shell tagged template) instead of execa — use `.quiet()` to suppress output, `.cwd()` for directory, `.text()` to capture
+- `Bun.spawn()` for subprocesses needing stdin/stdout/stderr control (ssh-keygen, ssh -T, clipboard, browser open)
+- `process.stdout.write()` + ansis for normal output; `process.stderr.write()` + ansis for errors/warnings — no `console.log`
 
 ## Commands
 
@@ -52,8 +54,10 @@ tests/                # bun:test unit tests
 - Config stored at `~/.gitch/config.json`, override with `GITCH_CONFIG_DIR` env var
 - SSH config blocks use `# gitch:<profile> -- START/END` marker comments — never touch lines outside markers
 - Config functions are pure (take config, return new config) — only `loadConfig`/`saveConfig` do I/O
-- Use `process.stdout.write()` + ansis for output — no `console.log`
+- Use `process.stdout.write()` + ansis for output, `process.stderr.write()` + ansis for errors/warnings — no `console.log`
 - Commands export `registerX(program: CAC)` and are wired in `cli.ts`
+- Mutating commands call `createBackup()` before config changes — max 10 backups in `~/.gitch/backups/`, auto-pruned
+- Config and backup files are `chmod 600`, SSH dirs are `chmod 700` — preserve these permissions
 - `gh` CLI integration is optional — skip gracefully if not installed
 - `noUncheckedIndexedAccess` is enabled in `tsconfig.json` — indexed access returns `T | undefined`, so narrow before using
 - CLI version is hardcoded in `cli.ts` (`cli.version("1.0.0")`) separately from `package.json` — update both when bumping

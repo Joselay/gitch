@@ -1,5 +1,6 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
+import ansis from "ansis";
 import type { GitchConfig, Profile } from "../types.ts";
 import { createDefaultConfig } from "../types.ts";
 
@@ -33,7 +34,7 @@ export async function loadConfig(): Promise<GitchConfig> {
     raw = await file.json();
   } catch {
     process.stderr.write(
-      "\x1b[33m⚠ Config file is corrupted — starting with a fresh config.\x1b[0m\n",
+      `${ansis.yellow("⚠ Config file is corrupted — starting with a fresh config.")}\n`,
     );
     return createDefaultConfig();
   }
@@ -45,14 +46,14 @@ export async function loadConfig(): Promise<GitchConfig> {
     (raw as Record<string, unknown>).profiles === null
   ) {
     process.stderr.write(
-      "\x1b[33m⚠ Config file has an invalid structure — starting with a fresh config.\x1b[0m\n",
+      `${ansis.yellow("⚠ Config file has an invalid structure — starting with a fresh config.")}\n`,
     );
     return createDefaultConfig();
   }
   const version = (raw as Record<string, unknown>).version;
   if (version !== 1) {
     process.stderr.write(
-      `\x1b[33m⚠ Config version ${String(version)} is not supported (expected 1) — starting with a fresh config.\x1b[0m\n`,
+      `${ansis.yellow(`⚠ Config version ${String(version)} is not supported (expected 1) — starting with a fresh config.`)}\n`,
     );
     return createDefaultConfig();
   }
