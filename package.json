@@ -1,8 +1,26 @@
 {
   "name": "gitch",
-  "module": "index.ts",
+  "version": "1.0.0",
+  "description": "Git account switcher — manage multiple Git identities",
   "type": "module",
-  "private": true,
+  "bin": {
+    "gitch": "./index.ts"
+  },
+  "files": [
+    "src",
+    "index.ts"
+  ],
+  "scripts": {
+    "dev": "bun run index.ts",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.2.0",
+    "@commander-js/extra-typings": "^14.0.0",
+    "commander": "^14.0.3",
+    "picocolors": "^1.1.1"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
