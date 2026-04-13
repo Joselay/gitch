@@ -1,15 +1,16 @@
-import cac from "cac";
 import ansis from "ansis";
+import cac from "cac";
+import pkg from "../package.json";
 import { registerAdd } from "./commands/add.ts";
+import { registerBind } from "./commands/bind.ts";
+import { registerInit } from "./commands/init.ts";
+import { registerList } from "./commands/list.ts";
+import { registerRemove } from "./commands/remove.ts";
+import { registerResolve } from "./commands/resolve.ts";
+import { registerStatus } from "./commands/status.ts";
+import { registerUnbind } from "./commands/unbind.ts";
 import { registerUse } from "./commands/use.ts";
 import { registerWhoami } from "./commands/whoami.ts";
-import { registerStatus } from "./commands/status.ts";
-import { registerRemove } from "./commands/remove.ts";
-import { registerList } from "./commands/list.ts";
-import { registerBind } from "./commands/bind.ts";
-import { registerUnbind } from "./commands/unbind.ts";
-import { registerInit } from "./commands/init.ts";
-import { registerResolve } from "./commands/resolve.ts";
 
 const cli = cac("gitch");
 
@@ -25,7 +26,7 @@ registerInit(cli);
 registerResolve(cli);
 
 cli.help();
-cli.version("1.0.0");
+cli.version(pkg.version);
 
 try {
   cli.parse();

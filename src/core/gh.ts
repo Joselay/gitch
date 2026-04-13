@@ -11,10 +11,7 @@ export async function switchUser(username: string): Promise<void> {
   await Bun.$`gh auth switch --user ${username}`.quiet();
 }
 
-export async function addSSHKey(
-  pubKeyPath: string,
-  title: string,
-): Promise<void> {
+export async function addSSHKey(pubKeyPath: string, title: string): Promise<void> {
   await Bun.$`gh ssh-key add ${pubKeyPath} --title ${title}`.quiet();
 }
 
@@ -26,8 +23,7 @@ export interface GhUserInfo {
 
 export async function currentUser(): Promise<string | null> {
   try {
-    const result =
-      await Bun.$`gh api user --jq '.login'`.quiet();
+    const result = await Bun.$`gh api user --jq '.login'`.quiet();
     return result.text().trim() || null;
   } catch {
     return null;

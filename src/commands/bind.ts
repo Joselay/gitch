@@ -1,14 +1,9 @@
 import { resolve } from "node:path";
 import type { CAC } from "cac";
-import {
-  loadConfig,
-  saveConfig,
-  getProfile,
-  addBinding,
-} from "../core/config.ts";
+import { createBackup } from "../core/backup.ts";
+import { addBinding, getProfile, loadConfig, saveConfig } from "../core/config.ts";
 import { setLocalConfig } from "../core/git.ts";
 import { buildSSHCommand } from "../core/ssh.ts";
-import { createBackup } from "../core/backup.ts";
 import * as out from "../ui/output.ts";
 
 export function registerBind(program: CAC): void {
@@ -31,26 +26,16 @@ export function registerBind(program: CAC): void {
       try {
         await setLocalConfig("user.name", profile.gitName, absolutePath);
         await setLocalConfig("user.email", profile.gitEmail, absolutePath);
-        await setLocalConfig(
-          "core.sshCommand",
-          buildSSHCommand(profile.sshKeyPath),
-          absolutePath,
-        );
+        await setLocalConfig("core.sshCommand", buildSSHCommand(profile.sshKeyPath), absolutePath);
       } catch {
-        out.error(
-          `Failed to set local git config at "${absolutePath}". Is it a git repository?`,
-        );
+        out.error(`Failed to set local git config at "${absolutePath}". Is it a git repository?`);
         process.exit(1);
       }
 
       const updated = addBinding(config, absolutePath, profileName);
       await saveConfig(updated);
 
-      out.success(
-        `Bound "${absolutePath}" → ${profileName} (${profile.gitEmail})`,
-      );
-      out.dim(
-        "  Add auto-switching: eval \"$(gitch init zsh)\" in your .zshrc",
-      );
+      out.success(`Bound "${absolutePath}" → ${profileName} (${profile.gitEmail})`);
+      out.dim('  Add auto-switching: eval "$(gitch init zsh)" in your .zshrc');
     });
 }

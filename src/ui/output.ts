@@ -13,7 +13,7 @@ export function error(message: string): void {
 }
 
 export function warn(message: string): void {
-  write(ansis.yellow(`⚠ ${message}`));
+  process.stderr.write(`${ansis.yellow(`⚠ ${message}`)}\n`);
 }
 
 export function info(message: string): void {

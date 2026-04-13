@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import { getBackupsDir, getConfigPath, ensureConfigDir } from "./config.ts";
+import { ensureConfigDir, getBackupsDir, getConfigPath } from "./config.ts";
 
 const MAX_BACKUPS = 10;
 

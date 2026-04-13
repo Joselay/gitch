@@ -1,13 +1,8 @@
 import { resolve } from "node:path";
 import type { CAC } from "cac";
-import {
-  loadConfig,
-  saveConfig,
-  getBindingForPath,
-  removeBinding,
-} from "../core/config.ts";
-import { unsetLocalConfig } from "../core/git.ts";
 import { createBackup } from "../core/backup.ts";
+import { getBindingForPath, loadConfig, removeBinding, saveConfig } from "../core/config.ts";
+import { unsetLocalConfig } from "../core/git.ts";
 import * as out from "../ui/output.ts";
 
 export function registerUnbind(program: CAC): void {

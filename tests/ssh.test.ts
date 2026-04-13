@@ -1,16 +1,10 @@
-import { test, expect, describe } from "bun:test";
-import {
-  expandPath,
-  isValidProfileName,
-  buildSSHCommand,
-} from "../src/core/ssh.ts";
+import { describe, expect, test } from "bun:test";
 import { homedir } from "node:os";
+import { buildSSHCommand, expandPath, isValidProfileName } from "../src/core/ssh.ts";
 
 describe("ssh", () => {
   test("expandPath expands ~ to homedir", () => {
-    expect(expandPath("~/.ssh/id_ed25519")).toBe(
-      `${homedir()}/.ssh/id_ed25519`,
-    );
+    expect(expandPath("~/.ssh/id_ed25519")).toBe(`${homedir()}/.ssh/id_ed25519`);
   });
 
   test("expandPath leaves absolute paths unchanged", () => {
@@ -57,9 +51,7 @@ describe("isValidProfileName", () => {
 describe("buildSSHCommand", () => {
   test("builds command with tilde path", () => {
     const cmd = buildSSHCommand("~/.ssh/id_ed25519_work");
-    expect(cmd).toBe(
-      `ssh -i ${homedir()}/.ssh/id_ed25519_work -o IdentitiesOnly=yes`,
-    );
+    expect(cmd).toBe(`ssh -i ${homedir()}/.ssh/id_ed25519_work -o IdentitiesOnly=yes`);
   });
 
   test("builds command with absolute path", () => {

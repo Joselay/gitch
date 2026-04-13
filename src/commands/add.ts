@@ -1,23 +1,18 @@
 import type { CAC } from "cac";
-import type { Profile } from "../types.ts";
-import {
-  loadConfig,
-  saveConfig,
-  profileExists,
-  addProfile,
-} from "../core/config.ts";
+import { createBackup } from "../core/backup.ts";
+import { addProfile, loadConfig, profileExists, saveConfig } from "../core/config.ts";
+import { addSSHKey, currentUser, isGhInstalled } from "../core/gh.ts";
 import {
   addHostAlias,
-  isValidProfileName,
-  sshKeyExists,
   expandPath,
   generateSSHKey,
+  isValidProfileName,
+  sshKeyExists,
   testSSHConnection,
 } from "../core/ssh.ts";
-import { isGhInstalled, addSSHKey, currentUser } from "../core/gh.ts";
-import { createBackup } from "../core/backup.ts";
-import { promptProfile } from "../ui/prompts.ts";
+import type { Profile } from "../types.ts";
 import * as out from "../ui/output.ts";
+import { promptProfile } from "../ui/prompts.ts";
 
 interface AddOptions {
   name?: string;
@@ -43,9 +38,7 @@ export function registerAdd(program: CAC): void {
     .option("--test-ssh", "Test SSH connection after setup")
     .action(async (profileName: string, options: AddOptions) => {
       if (!isValidProfileName(profileName)) {
-        out.error(
-          "Profile name must be alphanumeric, hyphens, or underscores only.",
-        );
+        out.error("Profile name must be alphanumeric, hyphens, or underscores only.");
         process.exit(1);
       }
 
@@ -77,7 +70,7 @@ export function registerAdd(program: CAC): void {
       if (headless && options.addToGithub) {
         if (await isGhInstalled()) {
           try {
-            const pubKeyPath = expandPath(profile.sshKeyPath) + ".pub";
+            const pubKeyPath = `${expandPath(profile.sshKeyPath)}.pub`;
             await addSSHKey(pubKeyPath, `gitch:${profileName}`);
             out.success("SSH key added to GitHub via gh CLI.");
           } catch {
@@ -98,9 +91,7 @@ export function registerAdd(program: CAC): void {
         if (ok) {
           out.success(`SSH connection to github.com-${profileName} verified!`);
         } else {
-          out.warn(
-            "SSH test did not confirm authentication. Ensure the key is added to GitHub.",
-          );
+          out.warn("SSH test did not confirm authentication. Ensure the key is added to GitHub.");
         }
       }
     });

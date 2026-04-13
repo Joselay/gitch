@@ -1,14 +1,9 @@
 import type { CAC } from "cac";
-import {
-  loadConfig,
-  saveConfig,
-  profileExists,
-  removeProfile,
-} from "../core/config.ts";
-import { removeHostAlias } from "../core/ssh.ts";
 import { createBackup } from "../core/backup.ts";
-import { confirmAction } from "../ui/prompts.ts";
+import { loadConfig, profileExists, removeProfile, saveConfig } from "../core/config.ts";
+import { removeHostAlias } from "../core/ssh.ts";
 import * as out from "../ui/output.ts";
+import { confirmAction } from "../ui/prompts.ts";
 
 export function registerRemove(program: CAC): void {
   program

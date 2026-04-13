@@ -7,17 +7,11 @@ export async function getGlobalConfig(key: string): Promise<string | null> {
   }
 }
 
-export async function setGlobalConfig(
-  key: string,
-  value: string,
-): Promise<void> {
+export async function setGlobalConfig(key: string, value: string): Promise<void> {
   await Bun.$`git config --global ${key} ${value}`.quiet();
 }
 
-export async function getLocalConfig(
-  key: string,
-  cwd?: string,
-): Promise<string | null> {
+export async function getLocalConfig(key: string, cwd?: string): Promise<string | null> {
   try {
     const base = Bun.$`git config --local ${key}`;
     const result = await (cwd ? base.cwd(cwd) : base).quiet();
@@ -27,26 +21,19 @@ export async function getLocalConfig(
   }
 }
 
-export async function setLocalConfig(
-  key: string,
-  value: string,
-  cwd?: string,
-): Promise<void> {
+export async function setLocalConfig(key: string, value: string, cwd?: string): Promise<void> {
   const base = Bun.$`git config --local ${key} ${value}`;
   await (cwd ? base.cwd(cwd) : base).quiet();
 }
 
-export async function setUrlRewrite(
-  profileName: string,
-): Promise<void> {
+export async function setUrlRewrite(profileName: string): Promise<void> {
   const key = `url.git@github.com-${profileName}:.insteadOf`;
   await Bun.$`git config --global ${key} git@github.com:`.quiet();
 }
 
 export async function clearUrlRewrites(): Promise<void> {
   try {
-    const result =
-      await Bun.$`git config --global --get-regexp ^url\\.git@github\\.com-`.quiet();
+    const result = await Bun.$`git config --global --get-regexp ^url\\.git@github\\.com-`.quiet();
     const lines = result.text().trim().split("\n").filter(Boolean);
     for (const line of lines) {
       const key = line.split(" ")[0];
@@ -59,10 +46,7 @@ export async function clearUrlRewrites(): Promise<void> {
   }
 }
 
-export async function unsetLocalConfig(
-  key: string,
-  cwd?: string,
-): Promise<void> {
+export async function unsetLocalConfig(key: string, cwd?: string): Promise<void> {
   try {
     const base = Bun.$`git config --local --unset ${key}`;
     await (cwd ? base.cwd(cwd) : base).quiet();

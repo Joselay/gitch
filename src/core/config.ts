@@ -62,14 +62,11 @@ export async function loadConfig(): Promise<GitchConfig> {
 
 export async function saveConfig(config: GitchConfig): Promise<void> {
   await ensureConfigDir();
-  await Bun.write(CONFIG_PATH, JSON.stringify(config, null, 2) + "\n");
+  await Bun.write(CONFIG_PATH, `${JSON.stringify(config, null, 2)}\n`);
   await Bun.$`chmod 600 ${CONFIG_PATH}`.quiet();
 }
 
-export function getProfile(
-  config: GitchConfig,
-  name: string,
-): Profile | undefined {
+export function getProfile(config: GitchConfig, name: string): Profile | undefined {
   return config.profiles[name];
 }
 
@@ -83,10 +80,7 @@ export function addProfile(config: GitchConfig, profile: Profile): GitchConfig {
   };
 }
 
-export function removeProfile(
-  config: GitchConfig,
-  name: string,
-): GitchConfig {
+export function removeProfile(config: GitchConfig, name: string): GitchConfig {
   const { [name]: _, ...rest } = config.profiles;
   return {
     ...config,
@@ -96,10 +90,7 @@ export function removeProfile(
   };
 }
 
-export function setActiveProfile(
-  config: GitchConfig,
-  name: string | null,
-): GitchConfig {
+export function setActiveProfile(config: GitchConfig, name: string | null): GitchConfig {
   return {
     ...config,
     activeProfile: name,
@@ -114,12 +105,8 @@ export function getProfileNames(config: GitchConfig): string[] {
   return Object.keys(config.profiles);
 }
 
-export function addBinding(
-  config: GitchConfig,
-  path: string,
-  profileName: string,
-): GitchConfig {
-  const normalized = path.endsWith("/") ? path.replace(/\/+$/, "") : path;
+export function addBinding(config: GitchConfig, path: string, profileName: string): GitchConfig {
+  const normalized = path.replace(/\/+$/, "");
   const filtered = config.bindings.filter((b) => b.path !== normalized);
   return {
     ...config,
@@ -139,6 +126,6 @@ export function getBindingForPath(
   path: string,
 ): { path: string; profile: string } | undefined {
   return config.bindings
-    .filter((b) => path === b.path || path.startsWith(b.path + "/"))
+    .filter((b) => path === b.path || path.startsWith(`${b.path}/`))
     .sort((a, b) => b.path.length - a.path.length)[0];
 }

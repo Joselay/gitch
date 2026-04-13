@@ -1,14 +1,14 @@
-import { test, expect, describe } from "bun:test";
+import { describe, expect, test } from "bun:test";
 import {
   addProfile,
+  getProfile,
+  getProfileNames,
+  profileExists,
   removeProfile,
   setActiveProfile,
-  getProfile,
-  profileExists,
-  getProfileNames,
 } from "../src/core/config.ts";
+import type { Profile } from "../src/types.ts";
 import { createDefaultConfig } from "../src/types.ts";
-import type { Profile, GitchConfig } from "../src/types.ts";
 
 const mockProfile: Profile = {
   name: "work",
@@ -39,7 +39,7 @@ describe("config", () => {
   test("addProfile adds a profile", () => {
     const config = createDefaultConfig();
     const updated = addProfile(config, mockProfile);
-    expect(updated.profiles["work"]).toEqual(mockProfile);
+    expect(updated.profiles.work).toEqual(mockProfile);
     expect(Object.keys(updated.profiles)).toHaveLength(1);
   });
 
@@ -67,9 +67,9 @@ describe("config", () => {
     config = setActiveProfile(config, "work");
 
     const updated = removeProfile(config, "work");
-    expect(updated.profiles["work"]).toBeUndefined();
+    expect(updated.profiles.work).toBeUndefined();
     expect(updated.activeProfile).toBeNull();
-    expect(updated.profiles["personal"]).toEqual(mockProfile2);
+    expect(updated.profiles.personal).toEqual(mockProfile2);
   });
 
   test("removeProfile preserves activeProfile if not matching", () => {
@@ -92,9 +92,7 @@ describe("config", () => {
     };
 
     const updated = removeProfile(config, "work");
-    expect(updated.bindings).toEqual([
-      { path: "/home/user/other", profile: "personal" },
-    ]);
+    expect(updated.bindings).toEqual([{ path: "/home/user/other", profile: "personal" }]);
   });
 
   test("setActiveProfile updates active", () => {

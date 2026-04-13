@@ -19,6 +19,8 @@ When implementing changes that involve a dependency or API (Bun, cac, @clack/pro
 bun test              # run all tests
 bun test tests/config.test.ts  # run a single test file
 bunx tsc --noEmit     # type check
+bun run lint          # lint with Biome
+bun run lint:fix      # auto-fix lint/format issues
 bun run index.ts      # run CLI locally
 bun link              # install globally as `gitch` for manual testing
 ```
@@ -65,4 +67,4 @@ tests/                # bun:test unit tests
 - Config and backup files are `chmod 600`, SSH dirs are `chmod 700` — preserve these permissions
 - `gh` CLI integration is optional — skip gracefully if not installed
 - `noUncheckedIndexedAccess` is enabled in `tsconfig.json` — indexed access returns `T | undefined`, so narrow before using
-- CLI version is hardcoded in `cli.ts` (`cli.version("1.0.0")`) separately from `package.json` — update both when bumping
+- CLI version is read from `package.json` at runtime via `import pkg from "../package.json"` — only update `package.json` when bumping

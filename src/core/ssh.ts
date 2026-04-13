@@ -63,22 +63,22 @@ function removeBlock(content: string, profileName: string): string {
     }
   }
 
-  return result.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  return result
+    .join("\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
-export async function addHostAlias(
-  profileName: string,
-  sshKeyPath: string,
-): Promise<void> {
+export async function addHostAlias(profileName: string, sshKeyPath: string): Promise<void> {
   let content = await readSSHConfig();
   content = removeBlock(content, profileName);
 
   const block = buildHostBlock(profileName, sshKeyPath);
 
   if (content.length > 0) {
-    content = content.trimEnd() + "\n\n" + block + "\n";
+    content = `${content.trimEnd()}\n\n${block}\n`;
   } else {
-    content = block + "\n";
+    content = `${block}\n`;
   }
 
   await writeSSHConfig(content);
@@ -89,7 +89,7 @@ export async function removeHostAlias(profileName: string): Promise<void> {
   if (!content) return;
 
   const updated = removeBlock(content, profileName);
-  await writeSSHConfig(updated ? updated + "\n" : "");
+  await writeSSHConfig(updated ? `${updated}\n` : "");
 }
 
 export async function hasHostAlias(profileName: string): Promise<boolean> {
@@ -131,17 +131,14 @@ export async function discoverSSHKeys(): Promise<string[]> {
   return keys.sort();
 }
 
-export async function generateSSHKey(
-  email: string,
-  name: string,
-): Promise<string> {
+export async function generateSSHKey(email: string, name: string): Promise<string> {
   const keyPath = join(SSH_DIR, `id_ed25519_${name}`);
   await Bun.$`mkdir -p ${SSH_DIR}`.quiet();
   await Bun.$`chmod 700 ${SSH_DIR}`.quiet();
-  const proc = Bun.spawn(
-    ["ssh-keygen", "-t", "ed25519", "-C", email, "-f", keyPath, "-N", ""],
-    { stdout: "ignore", stderr: "pipe" },
-  );
+  const proc = Bun.spawn(["ssh-keygen", "-t", "ed25519", "-C", email, "-f", keyPath, "-N", ""], {
+    stdout: "ignore",
+    stderr: "pipe",
+  });
   const exitCode = await proc.exited;
   if (exitCode !== 0) {
     const stderr = await new Response(proc.stderr).text();
@@ -153,13 +150,11 @@ export async function generateSSHKey(
 }
 
 export async function getPublicKey(privatePath: string): Promise<string> {
-  const pubPath = expandPath(privatePath) + ".pub";
+  const pubPath = `${expandPath(privatePath)}.pub`;
   return (await Bun.file(pubPath).text()).trim();
 }
 
-export async function testSSHConnection(
-  profileName: string,
-): Promise<boolean> {
+export async function testSSHConnection(profileName: string): Promise<boolean> {
   try {
     const proc = Bun.spawn(
       ["ssh", "-T", `git@github.com-${profileName}`, "-o", "StrictHostKeyChecking=accept-new"],
@@ -197,14 +192,9 @@ export async function openInBrowser(url: string): Promise<void> {
   }
 
   const cmd =
-    process.platform === "darwin"
-      ? "open"
-      : process.platform === "linux"
-        ? "xdg-open"
-        : null;
+    process.platform === "darwin" ? "open" : process.platform === "linux" ? "xdg-open" : null;
 
   if (!cmd) throw new Error(`Browser open not supported on ${process.platform}`);
 
   await Bun.spawn([cmd, url]).exited;
 }
-

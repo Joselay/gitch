@@ -1,5 +1,5 @@
 import type { CAC } from "cac";
-import { loadConfig, getProfile, getBindingForPath } from "../core/config.ts";
+import { getBindingForPath, getProfile, loadConfig } from "../core/config.ts";
 import { getLocalConfig, setLocalConfig } from "../core/git.ts";
 import { buildSSHCommand } from "../core/ssh.ts";
 
@@ -26,10 +26,7 @@ export function registerResolve(program: CAC): void {
       try {
         await setLocalConfig("user.name", profile.gitName);
         await setLocalConfig("user.email", profile.gitEmail);
-        await setLocalConfig(
-          "core.sshCommand",
-          buildSSHCommand(profile.sshKeyPath),
-        );
+        await setLocalConfig("core.sshCommand", buildSSHCommand(profile.sshKeyPath));
         process.stdout.write(binding.profile);
       } catch {
         // not a git repo or no permissions — silently skip

@@ -28,10 +28,10 @@ export function registerInit(program: CAC): void {
     .action((shell: string) => {
       switch (shell) {
         case "zsh":
-          process.stdout.write(ZSH_HOOK + "\n");
+          process.stdout.write(`${ZSH_HOOK}\n`);
           break;
         case "bash":
-          process.stdout.write(BASH_HOOK + "\n");
+          process.stdout.write(`${BASH_HOOK}\n`);
           break;
         default:
           out.error(`Unsupported shell: "${shell}". Use "zsh" or "bash".`);

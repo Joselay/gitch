@@ -1,17 +1,8 @@
 import type { CAC } from "cac";
-import {
-  loadConfig,
-  saveConfig,
-  getProfile,
-  setActiveProfile,
-} from "../core/config.ts";
-import {
-  setGlobalConfig,
-  clearUrlRewrites,
-  setUrlRewrite,
-} from "../core/git.ts";
-import { isGhInstalled, switchUser } from "../core/gh.ts";
 import { createBackup } from "../core/backup.ts";
+import { getProfile, loadConfig, saveConfig, setActiveProfile } from "../core/config.ts";
+import { isGhInstalled, switchUser } from "../core/gh.ts";
+import { clearUrlRewrites, setGlobalConfig, setUrlRewrite } from "../core/git.ts";
 import * as out from "../ui/output.ts";
 
 export function registerUse(program: CAC): void {

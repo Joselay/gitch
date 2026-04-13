@@ -1,33 +1,29 @@
 import * as p from "@clack/prompts";
+import type { GhUserInfo } from "../core/gh.ts";
+import { addSSHKey, getUserInfo, isGhInstalled } from "../core/gh.ts";
 import {
-  sshKeyExists,
-  expandPath,
+  addHostAlias,
+  copyToClipboard,
   discoverSSHKeys,
+  expandPath,
   generateSSHKey,
   getPublicKey,
-  copyToClipboard,
   openInBrowser,
-  addHostAlias,
+  sshKeyExists,
   testSSHConnection,
 } from "../core/ssh.ts";
-import { isGhInstalled, addSSHKey, getUserInfo } from "../core/gh.ts";
-import type { GhUserInfo } from "../core/gh.ts";
 import type { Profile } from "../types.ts";
 
-async function promptSSHKey(
-  email: string,
-  profileName: string,
-): Promise<string | null> {
+async function promptSSHKey(email: string, profileName: string): Promise<string | null> {
   const existingKeys = await discoverSSHKeys();
 
   const GENERATE_NEW = "__generate__";
   const ENTER_MANUAL = "__manual__";
 
-  const options: { value: string; label: string; hint?: string }[] =
-    existingKeys.map((key) => ({
-      value: key,
-      label: key,
-    }));
+  const options: { value: string; label: string; hint?: string }[] = existingKeys.map((key) => ({
+    value: key,
+    label: key,
+  }));
 
   options.push({
     value: GENERATE_NEW,
@@ -59,9 +55,7 @@ async function promptSSHKey(
       return keyPath;
     } catch (err) {
       s.stop("Failed to generate SSH key.");
-      p.log.error(
-        err instanceof Error ? err.message : "Unknown error",
-      );
+      p.log.error(err instanceof Error ? err.message : "Unknown error");
       return null;
     }
   }
@@ -92,10 +86,7 @@ async function promptSSHKey(
   return choice as string;
 }
 
-async function promptGitHubSetup(
-  sshKeyPath: string,
-  profileName: string,
-): Promise<void> {
+async function promptGitHubSetup(sshKeyPath: string, profileName: string): Promise<void> {
   const addToGitHub = await p.confirm({
     message: "Add this SSH key to GitHub?",
     initialValue: true,
@@ -106,7 +97,7 @@ async function promptGitHubSetup(
   const s = p.spinner();
   s.start("Adding SSH key to GitHub via gh CLI...");
   try {
-    const pubKeyPath = expandPath(sshKeyPath) + ".pub";
+    const pubKeyPath = `${expandPath(sshKeyPath)}.pub`;
     await addSSHKey(pubKeyPath, `gitch:${profileName}`);
     s.stop("SSH key added to GitHub!");
   } catch (err: unknown) {
@@ -132,7 +123,7 @@ async function manualKeyUpload(sshKeyPath: string): Promise<void> {
     p.log.success("Public key copied to clipboard!");
     p.log.info("Opening GitHub SSH settings...");
     await openInBrowser("https://github.com/settings/ssh/new");
-    p.log.info("Paste your key in the browser and click \"Add SSH key\".");
+    p.log.info('Paste your key in the browser and click "Add SSH key".');
   } catch {
     p.log.warning("Could not copy key or open browser. Add it manually:");
     try {
@@ -169,9 +160,7 @@ export async function promptProfile(name: string): Promise<Profile | null> {
         ghUsername = ghInfo.login;
         p.log.success(`GitHub account detected: ${ghInfo.login}`);
       } else {
-        p.log.warning(
-          "Could not detect GitHub user. Run 'gh auth login' first.",
-        );
+        p.log.warning("Could not detect GitHub user. Run 'gh auth login' first.");
       }
     }
   }
