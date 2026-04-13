@@ -1,0 +1,7 @@
+[test]
+root = "./tests"
+coverage = false
+coverageReporter = ["text", "lcov"]
+
+[run]
+bun = true
