@@ -238,55 +238,91 @@ export async function promptEditProfile(
 ): Promise<Partial<Omit<Profile, "name" | "createdAt">> | null> {
   p.intro(`Editing profile: ${existing.name}`);
 
-  const gitName = await p.text({
-    message: "Git user name",
-    defaultValue: existing.gitName,
-    validate: (v) => {
-      if (!v?.trim()) return "Name is required";
-    },
-  });
-  cancelGuard(gitName, "Edit cancelled.");
+  p.note(
+    [
+      `Name:     ${existing.gitName}`,
+      `Email:    ${existing.gitEmail}`,
+      `SSH key:  ${existing.sshKeyPath}`,
+      `GitHub:   ${existing.ghUsername ?? "(not set)"}`,
+    ].join("\n"),
+    "Current values",
+  );
 
-  const gitEmail = await p.text({
-    message: "Git email",
-    defaultValue: existing.gitEmail,
-    validate: (v) => {
-      if (!v?.trim()) return "Email is required";
-      if (!v.includes("@")) return "Invalid email";
-    },
+  const fieldsToEdit = await p.multiselect({
+    message: "Which fields do you want to edit? (space to toggle, enter to submit)",
+    options: [
+      { value: "gitName", label: "Git user name" },
+      { value: "gitEmail", label: "Git email" },
+      { value: "sshKeyPath", label: "SSH private key path" },
+      { value: "ghUsername", label: "GitHub username" },
+    ],
+    required: false,
   });
-  cancelGuard(gitEmail, "Edit cancelled.");
+  cancelGuard(fieldsToEdit, "Edit cancelled.");
 
-  const sshKeyPath = await p.text({
-    message: "SSH private key path",
-    defaultValue: existing.sshKeyPath,
-    validate: (v) => {
-      if (!v?.trim()) return "SSH key path is required";
-      if (!isValidSSHKeyPath(v)) return "Path contains invalid characters";
-    },
-  });
-  cancelGuard(sshKeyPath, "Edit cancelled.");
+  if (fieldsToEdit.length === 0) {
+    p.outro("No changes made.");
+    return null;
+  }
 
-  if (sshKeyPath !== existing.sshKeyPath) {
-    const expanded = expandPath(sshKeyPath);
-    if (!(await sshKeyExists(expanded))) {
-      p.cancel(`SSH key not found: ${expanded}`);
-      return null;
+  const fields = new Set(fieldsToEdit);
+  const updates: Partial<Omit<Profile, "name" | "createdAt">> = {};
+
+  if (fields.has("gitName")) {
+    const gitName = await p.text({
+      message: "Git user name",
+      defaultValue: existing.gitName,
+      validate: (v) => {
+        if (!v?.trim()) return "Name is required";
+      },
+    });
+    cancelGuard(gitName, "Edit cancelled.");
+    if (gitName !== existing.gitName) updates.gitName = gitName;
+  }
+
+  if (fields.has("gitEmail")) {
+    const gitEmail = await p.text({
+      message: "Git email",
+      defaultValue: existing.gitEmail,
+      validate: (v) => {
+        if (!v?.trim()) return "Email is required";
+        if (!v.includes("@")) return "Invalid email";
+      },
+    });
+    cancelGuard(gitEmail, "Edit cancelled.");
+    if (gitEmail !== existing.gitEmail) updates.gitEmail = gitEmail;
+  }
+
+  if (fields.has("sshKeyPath")) {
+    const sshKeyPath = await p.text({
+      message: "SSH private key path",
+      defaultValue: existing.sshKeyPath,
+      validate: (v) => {
+        if (!v?.trim()) return "SSH key path is required";
+        if (!isValidSSHKeyPath(v)) return "Path contains invalid characters";
+      },
+    });
+    cancelGuard(sshKeyPath, "Edit cancelled.");
+
+    if (sshKeyPath !== existing.sshKeyPath) {
+      const expanded = expandPath(sshKeyPath);
+      if (!(await sshKeyExists(expanded))) {
+        p.cancel(`SSH key not found: ${expanded}`);
+        return null;
+      }
+      updates.sshKeyPath = sshKeyPath;
     }
   }
 
-  const ghUsername = await p.text({
-    message: "GitHub username (leave empty to clear)",
-    defaultValue: existing.ghUsername ?? "",
-  });
-  cancelGuard(ghUsername, "Edit cancelled.");
-
-  const updates: Partial<Omit<Profile, "name" | "createdAt">> = {};
-  if (gitName !== existing.gitName) updates.gitName = gitName;
-  if (gitEmail !== existing.gitEmail) updates.gitEmail = gitEmail;
-  if (sshKeyPath !== existing.sshKeyPath) updates.sshKeyPath = sshKeyPath;
-  const newGhUsername = ghUsername.trim() || undefined;
-  if (newGhUsername !== existing.ghUsername) updates.ghUsername = newGhUsername;
+  if (fields.has("ghUsername")) {
+    const ghUsername = await p.text({
+      message: "GitHub username (leave empty to clear)",
+      defaultValue: existing.ghUsername ?? "",
+    });
+    cancelGuard(ghUsername, "Edit cancelled.");
+    const newGhUsername = ghUsername.trim() || undefined;
+    if (newGhUsername !== existing.ghUsername) updates.ghUsername = newGhUsername;
+  }
 
   if (Object.keys(updates).length === 0) {
     p.outro("No changes made.");
