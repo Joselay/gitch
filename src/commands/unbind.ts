@@ -27,6 +27,7 @@ export function registerUnbind(program: CAC): void {
 
       await unsetLocalConfig("user.name", absolutePath);
       await unsetLocalConfig("user.email", absolutePath);
+      await unsetLocalConfig("core.sshCommand", absolutePath);
 
       const updated = removeBinding(config, absolutePath);
       await saveConfig(updated);

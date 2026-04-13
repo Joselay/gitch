@@ -7,6 +7,7 @@ import {
   addBinding,
 } from "../core/config.ts";
 import { setLocalConfig } from "../core/git.ts";
+import { buildSSHCommand } from "../core/ssh.ts";
 import { createBackup } from "../core/backup.ts";
 import * as out from "../ui/output.ts";
 
@@ -30,6 +31,11 @@ export function registerBind(program: CAC): void {
       try {
         await setLocalConfig("user.name", profile.gitName, absolutePath);
         await setLocalConfig("user.email", profile.gitEmail, absolutePath);
+        await setLocalConfig(
+          "core.sshCommand",
+          buildSSHCommand(profile.sshKeyPath),
+          absolutePath,
+        );
       } catch {
         out.error(
           `Failed to set local git config at "${absolutePath}". Is it a git repository?`,

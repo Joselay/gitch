@@ -19,8 +19,8 @@ export async function getLocalConfig(
   cwd?: string,
 ): Promise<string | null> {
   try {
-    const cmd = Bun.$`git config --local ${key}`.quiet();
-    const result = cwd ? await cmd.cwd(cwd) : await cmd;
+    const base = Bun.$`git config --local ${key}`;
+    const result = await (cwd ? base.cwd(cwd) : base).quiet();
     return result.text().trim() || null;
   } catch {
     return null;
@@ -32,8 +32,8 @@ export async function setLocalConfig(
   value: string,
   cwd?: string,
 ): Promise<void> {
-  const cmd = Bun.$`git config --local ${key} ${value}`.quiet();
-  cwd ? await cmd.cwd(cwd) : await cmd;
+  const base = Bun.$`git config --local ${key} ${value}`;
+  await (cwd ? base.cwd(cwd) : base).quiet();
 }
 
 export async function setUrlRewrite(
@@ -64,8 +64,8 @@ export async function unsetLocalConfig(
   cwd?: string,
 ): Promise<void> {
   try {
-    const cmd = Bun.$`git config --local --unset ${key}`.quiet();
-    cwd ? await cmd.cwd(cwd) : await cmd;
+    const base = Bun.$`git config --local --unset ${key}`;
+    await (cwd ? base.cwd(cwd) : base).quiet();
   } catch {
     // config key may already be unset, that's fine
   }

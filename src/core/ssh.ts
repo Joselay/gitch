@@ -1,6 +1,5 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { unlink } from "node:fs/promises";
 
 const SSH_DIR = join(homedir(), ".ssh");
 const SSH_CONFIG_PATH = join(SSH_DIR, "config");
@@ -51,11 +50,11 @@ function removeBlock(content: string, profileName: string): string {
   let skipping = false;
 
   for (const line of lines) {
-    if (line.includes(startMarker)) {
+    if (line.trimEnd() === startMarker) {
       skipping = true;
       continue;
     }
-    if (line.includes(endMarker)) {
+    if (line.trimEnd() === endMarker) {
       skipping = false;
       continue;
     }
@@ -96,6 +95,11 @@ export async function removeHostAlias(profileName: string): Promise<void> {
 export async function hasHostAlias(profileName: string): Promise<boolean> {
   const content = await readSSHConfig();
   return content.includes(START_MARKER(profileName));
+}
+
+export function buildSSHCommand(sshKeyPath: string): string {
+  const expanded = expandPath(sshKeyPath);
+  return `ssh -i ${expanded} -o IdentitiesOnly=yes`;
 }
 
 export function expandPath(path: string): string {
@@ -204,4 +208,3 @@ export async function openInBrowser(url: string): Promise<void> {
   await Bun.spawn([cmd, url]).exited;
 }
 
-export { unlink as unlinkFile };

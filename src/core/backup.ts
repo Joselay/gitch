@@ -1,5 +1,4 @@
 import { join } from "node:path";
-import { unlink } from "node:fs/promises";
 import { getBackupsDir, getConfigPath, ensureConfigDir } from "./config.ts";
 
 const MAX_BACKUPS = 10;
@@ -34,6 +33,6 @@ async function pruneBackups(): Promise<void> {
   const toDelete = entries.slice(0, entries.length - MAX_BACKUPS);
 
   for (const file of toDelete) {
-    await unlink(join(getBackupsDir(), file));
+    await Bun.$`rm ${join(getBackupsDir(), file)}`.quiet();
   }
 }

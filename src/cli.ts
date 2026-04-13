@@ -25,4 +25,12 @@ registerResolve(cli);
 
 cli.help();
 cli.version("1.0.0");
-cli.parse();
+
+try {
+  cli.parse();
+} catch (err) {
+  process.stderr.write(
+    `\x1b[31m✗ ${err instanceof Error ? err.message : "An unexpected error occurred."}\x1b[0m\n`,
+  );
+  process.exit(1);
+}

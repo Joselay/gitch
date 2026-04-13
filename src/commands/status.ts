@@ -1,5 +1,5 @@
 import type { CAC } from "cac";
-import { loadConfig, getProfileNames } from "../core/config.ts";
+import { loadConfig, getProfileNames, getProfile } from "../core/config.ts";
 import * as out from "../ui/output.ts";
 import { basename } from "node:path";
 
@@ -19,7 +19,8 @@ export function registerStatus(program: CAC): void {
       out.heading("Profiles\n");
 
       for (const name of names) {
-        const profile = config.profiles[name]!;
+        const profile = getProfile(config, name);
+        if (!profile) continue;
         const isActive = config.activeProfile === name;
 
         out.profileCard(

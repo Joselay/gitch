@@ -12,6 +12,8 @@ autoload -Uz add-zsh-hook
 add-zsh-hook chpwd _gitch_chpwd`;
 
 const BASH_HOOK = `_gitch_prompt() {
+  if [[ "$_gitch_last_dir" == "$PWD" ]]; then return; fi
+  _gitch_last_dir="$PWD"
   local profile
   profile=$(gitch _resolve 2>/dev/null)
   if [[ -n "$profile" ]]; then

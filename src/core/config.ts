@@ -49,6 +49,13 @@ export async function loadConfig(): Promise<GitchConfig> {
     );
     return createDefaultConfig();
   }
+  const version = (raw as Record<string, unknown>).version;
+  if (version !== 1) {
+    process.stderr.write(
+      `\x1b[33m⚠ Config version ${String(version)} is not supported (expected 1) — starting with a fresh config.\x1b[0m\n`,
+    );
+    return createDefaultConfig();
+  }
   return raw as GitchConfig;
 }
 
