@@ -18,8 +18,10 @@ Default to using Bun instead of Node.js.
 
 ```bash
 bun test              # run all tests
+bun test tests/config.test.ts  # run a single test file
 bunx tsc --noEmit     # type check
 bun run index.ts      # run CLI locally
+bun link              # install globally as `gitch` for manual testing
 ```
 
 ## Architecture
@@ -28,9 +30,9 @@ bun run index.ts      # run CLI locally
 src/
   cli.ts              # Commander program + command registration
   types.ts            # GitchConfig, Profile, DirectoryBinding interfaces
-  commands/           # One file per CLI command (add, use, whoami, etc.)
+  commands/           # One file per CLI command (add, use, whoami, status, remove, list, bind, unbind, init, resolve)
   core/               # Business logic (config.ts, git.ts, ssh.ts, gh.ts, backup.ts)
-  ui/                 # Output formatting (output.ts) and prompts (prompts.ts)
+  ui/                 # Output formatting (output.ts) with picocolors, interactive prompts (prompts.ts) with @clack/prompts
 tests/                # bun:test unit tests
 ```
 
