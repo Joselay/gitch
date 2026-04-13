@@ -24,7 +24,8 @@
   ],
   "files": [
     "src",
-    "index.ts"
+    "index.ts",
+    "dist"
   ],
   "scripts": {
     "dev": "bun --watch run index.ts",
@@ -35,7 +36,8 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "check": "bun run lint && bun run typecheck && bun test",
-    "build": "bun build ./index.ts --compile --outfile dist/gitch"
+    "build": "bun build ./index.ts --compile --outfile dist/gitch",
+    "prepublishOnly": "bun run check && bun run build"
   },
   "type": "module",
   "devDependencies": {
