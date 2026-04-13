@@ -2,6 +2,10 @@
 
 **Runtime: Bun** — use `bun` / `bunx` for everything (run, test, install, scripts). Bun auto-loads `.env`, so no dotenv.
 
+## Before Making Changes
+
+When implementing changes that involve a dependency or API (Bun, cac, @clack/prompts, ansis, git, gh, ssh-keygen, etc.), **always use the context7 MCP server to look up official documentation first**. Verify correct usage, method signatures, and best practices before writing code. Do not rely on memory alone — docs may have changed.
+
 ## APIs
 
 - Prefer `Bun.file` / `Bun.write` over `node:fs`'s readFile/writeFile
