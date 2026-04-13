@@ -43,6 +43,9 @@ tests/                # bun:test unit tests
 
 ## Key Patterns
 
+- Commands with interactive prompts must support headless mode via CLI flags (e.g., `--name`, `--email`, `--yes`)
+- `git.ts` local config functions accept optional `cwd` parameter — use it when operating on a path other than CWD
+- `git.ts` has `unsetLocalConfig(key, cwd?)` for removing local config entries
 - Dependencies must be TypeScript-first (written in TS, ships own types — no `@types/` shims)
 - Config stored at `~/.gitch/config.json`, override with `GITCH_CONFIG_DIR` env var
 - SSH config blocks use `# gitch:<profile> -- START/END` marker comments — never touch lines outside markers
