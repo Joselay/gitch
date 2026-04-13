@@ -57,4 +57,30 @@ describe("bindings", () => {
     const config = createDefaultConfig();
     expect(getBindingForPath(config, "/nonexistent")).toBeUndefined();
   });
+
+  test("getBindingForPath matches subdirectories", () => {
+    let config = createDefaultConfig();
+    config = addBinding(config, "/home/user/work", "work");
+    const binding = getBindingForPath(config, "/home/user/work/project/src");
+    expect(binding).toEqual({ path: "/home/user/work", profile: "work" });
+  });
+
+  test("getBindingForPath picks longest matching path", () => {
+    let config = createDefaultConfig();
+    config = addBinding(config, "/home/user/work", "work");
+    config = addBinding(config, "/home/user/work/special", "special");
+    const binding = getBindingForPath(config, "/home/user/work/special/src");
+    expect(binding).toEqual({
+      path: "/home/user/work/special",
+      profile: "special",
+    });
+  });
+
+  test("getBindingForPath does not match partial directory names", () => {
+    let config = createDefaultConfig();
+    config = addBinding(config, "/home/user/work", "work");
+    expect(
+      getBindingForPath(config, "/home/user/workspace"),
+    ).toBeUndefined();
+  });
 });

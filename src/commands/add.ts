@@ -5,7 +5,7 @@ import {
   profileExists,
   addProfile,
 } from "../core/config.ts";
-import { addHostAlias } from "../core/ssh.ts";
+import { addHostAlias, isValidProfileName } from "../core/ssh.ts";
 import { createBackup } from "../core/backup.ts";
 import { promptProfile } from "../ui/prompts.ts";
 import * as out from "../ui/output.ts";
@@ -15,6 +15,13 @@ export function registerAdd(program: Command): void {
     .command("add <profile>")
     .description("Create a new git profile")
     .action(async (profileName: string) => {
+      if (!isValidProfileName(profileName)) {
+        out.error(
+          "Profile name must be alphanumeric, hyphens, or underscores only.",
+        );
+        process.exit(1);
+      }
+
       const config = await loadConfig();
 
       if (profileExists(config, profileName)) {

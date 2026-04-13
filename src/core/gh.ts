@@ -14,7 +14,7 @@ export async function switchUser(username: string): Promise<void> {
 export async function currentUser(): Promise<string | null> {
   try {
     const result =
-      await Bun.$`gh api user --jq '.login' 2>/dev/null`.quiet();
+      await Bun.$`gh api user --jq '.login'`.quiet();
     return result.text().trim() || null;
   } catch {
     return null;

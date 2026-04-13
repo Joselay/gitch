@@ -28,12 +28,23 @@ export async function loadConfig(): Promise<GitchConfig> {
   if (!(await file.exists())) {
     return createDefaultConfig();
   }
-  return (await file.json()) as GitchConfig;
+  const raw = await file.json();
+  if (
+    !raw ||
+    typeof raw !== "object" ||
+    !Array.isArray(raw.bindings) ||
+    typeof raw.profiles !== "object" ||
+    raw.profiles === null
+  ) {
+    return createDefaultConfig();
+  }
+  return raw as GitchConfig;
 }
 
 export async function saveConfig(config: GitchConfig): Promise<void> {
   await ensureConfigDir();
   await Bun.write(CONFIG_PATH, JSON.stringify(config, null, 2) + "\n");
+  await Bun.$`chmod 600 ${CONFIG_PATH}`.quiet();
 }
 
 export function getProfile(
@@ -107,5 +118,7 @@ export function getBindingForPath(
   config: GitchConfig,
   path: string,
 ): { path: string; profile: string } | undefined {
-  return config.bindings.find((b) => b.path === path);
+  return config.bindings
+    .filter((b) => path === b.path || path.startsWith(b.path + "/"))
+    .sort((a, b) => b.path.length - a.path.length)[0];
 }

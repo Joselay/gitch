@@ -1,5 +1,6 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
+import { unlink } from "node:fs/promises";
 
 const SSH_DIR = join(homedir(), ".ssh");
 const SSH_CONFIG_PATH = join(SSH_DIR, "config");
@@ -15,8 +16,16 @@ function buildHostBlock(profileName: string, sshKeyPath: string): string {
     "  User git",
     `  IdentityFile ${sshKeyPath}`,
     "  IdentitiesOnly yes",
+    "  AddKeysToAgent yes",
+    "  PubkeyAuthentication yes",
     END_MARKER(profileName),
   ].join("\n");
+}
+
+const SAFE_PROFILE_NAME = /^[a-zA-Z0-9_-]+$/;
+
+export function isValidProfileName(name: string): boolean {
+  return SAFE_PROFILE_NAME.test(name) && name.length <= 64;
 }
 
 async function readSSHConfig(): Promise<string> {
@@ -29,6 +38,7 @@ async function readSSHConfig(): Promise<string> {
 
 async function writeSSHConfig(content: string): Promise<void> {
   await Bun.$`mkdir -p ${SSH_DIR}`.quiet();
+  await Bun.$`chmod 700 ${SSH_DIR}`.quiet();
   await Bun.write(SSH_CONFIG_PATH, content);
   await Bun.$`chmod 600 ${SSH_CONFIG_PATH}`.quiet();
 }
@@ -41,11 +51,11 @@ function removeBlock(content: string, profileName: string): string {
   let skipping = false;
 
   for (const line of lines) {
-    if (line.trim() === startMarker) {
+    if (line.includes(startMarker)) {
       skipping = true;
       continue;
     }
-    if (line.trim() === endMarker) {
+    if (line.includes(endMarker)) {
       skipping = false;
       continue;
     }
@@ -98,3 +108,76 @@ export function expandPath(path: string): string {
 export async function sshKeyExists(path: string): Promise<boolean> {
   return await Bun.file(expandPath(path)).exists();
 }
+
+export async function discoverSSHKeys(): Promise<string[]> {
+  const glob = new Bun.Glob("id_*");
+  const keys: string[] = [];
+
+  for await (const entry of glob.scan({ cwd: SSH_DIR })) {
+    if (entry.includes("/") || entry.includes("..")) continue;
+    if (!entry.endsWith(".pub")) {
+      const fullPath = join(SSH_DIR, entry);
+      const pubExists = await Bun.file(`${fullPath}.pub`).exists();
+      if (pubExists) {
+        keys.push(`~/.ssh/${entry}`);
+      }
+    }
+  }
+
+  return keys.sort();
+}
+
+export async function generateSSHKey(
+  email: string,
+  name: string,
+): Promise<string> {
+  const keyPath = join(SSH_DIR, `id_ed25519_${name}`);
+  const emptyPassphrase = "";
+  await Bun.$`mkdir -p ${SSH_DIR}`.quiet();
+  await Bun.$`chmod 700 ${SSH_DIR}`.quiet();
+  await Bun.$`ssh-keygen -t ed25519 -C ${email} -f ${keyPath} -N ${emptyPassphrase}`;
+  await Bun.$`chmod 600 ${keyPath}`.quiet();
+  await Bun.$`chmod 644 ${keyPath}.pub`.quiet();
+  return `~/.ssh/id_ed25519_${name}`;
+}
+
+export async function getPublicKey(privatePath: string): Promise<string> {
+  const pubPath = expandPath(privatePath) + ".pub";
+  return (await Bun.file(pubPath).text()).trim();
+}
+
+export async function copyToClipboard(text: string): Promise<void> {
+  const cmd =
+    process.platform === "darwin"
+      ? ["pbcopy"]
+      : process.platform === "linux"
+        ? ["xclip", "-selection", "clipboard"]
+        : null;
+
+  if (!cmd) throw new Error(`Clipboard not supported on ${process.platform}`);
+
+  const proc = Bun.spawn(cmd, { stdin: "pipe" });
+  proc.stdin.write(text);
+  proc.stdin.end();
+  await proc.exited;
+}
+
+export async function openInBrowser(url: string): Promise<void> {
+  const parsed = new URL(url);
+  if (parsed.protocol !== "https:") {
+    throw new Error("Only HTTPS URLs are allowed");
+  }
+
+  const cmd =
+    process.platform === "darwin"
+      ? "open"
+      : process.platform === "linux"
+        ? "xdg-open"
+        : null;
+
+  if (!cmd) throw new Error(`Browser open not supported on ${process.platform}`);
+
+  await Bun.spawn([cmd, url]).exited;
+}
+
+export { unlink as unlinkFile };
