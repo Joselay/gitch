@@ -44,8 +44,8 @@ Entry point: `index.ts` (shebang `#!/usr/bin/env bun`) — just imports `src/cli
 src/
   cli.ts              # cac program + command registration
   types.ts            # GitchConfig, Profile, DirectoryBinding interfaces
-  commands/           # One file per CLI command (add, use, whoami, status, remove, list, bind, unbind, init, resolve)
-  core/               # Business logic (config.ts, git.ts, ssh.ts, gh.ts, backup.ts)
+  commands/           # One file per CLI command (add, edit, use, whoami, status, remove, list, doctor, bind, clone, unbind, init, resolve)
+  core/               # Business logic (config.ts, git.ts, ssh.ts, gh.ts, backup.ts, doctor.ts)
   ui/                 # Output formatting (output.ts) with ansis, interactive prompts (prompts.ts) with @clack/prompts
 tests/                # bun:test unit tests
 ```
@@ -77,4 +77,5 @@ tests/                # bun:test unit tests
 - Config and backup files are `chmod 600`, SSH dirs are `chmod 700` — preserve these permissions
 - `gh` CLI integration is optional — skip gracefully if not installed
 - `noUncheckedIndexedAccess` is enabled in `tsconfig.json` — indexed access returns `T | undefined`, so narrow before using
+- cac parses `--flag <value>` as strings at runtime regardless of TS type — coerce and validate numeric options (e.g., `--depth`)
 - CLI version is read from `package.json` at runtime via `import pkg from "../package.json"` — only update `package.json` when bumping
