@@ -132,10 +132,17 @@ export async function generateSSHKey(
   name: string,
 ): Promise<string> {
   const keyPath = join(SSH_DIR, `id_ed25519_${name}`);
-  const emptyPassphrase = "";
   await Bun.$`mkdir -p ${SSH_DIR}`.quiet();
   await Bun.$`chmod 700 ${SSH_DIR}`.quiet();
-  await Bun.$`ssh-keygen -t ed25519 -C ${email} -f ${keyPath} -N ${emptyPassphrase}`;
+  const proc = Bun.spawn(
+    ["ssh-keygen", "-t", "ed25519", "-C", email, "-f", keyPath, "-N", ""],
+    { stdout: "ignore", stderr: "pipe" },
+  );
+  const exitCode = await proc.exited;
+  if (exitCode !== 0) {
+    const stderr = await new Response(proc.stderr).text();
+    throw new Error(`ssh-keygen failed: ${stderr}`);
+  }
   await Bun.$`chmod 600 ${keyPath}`.quiet();
   await Bun.$`chmod 644 ${keyPath}.pub`.quiet();
   return `~/.ssh/id_ed25519_${name}`;
