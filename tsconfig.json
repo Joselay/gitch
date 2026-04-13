@@ -15,7 +15,7 @@
     "noEmit": true,
 
     // Bun types
-    "types": ["bun-types"],
+    "types": ["bun"],
 
     // Best practices
     "strict": true,

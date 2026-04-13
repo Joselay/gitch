@@ -54,7 +54,8 @@ tests/                # bun:test unit tests
 - Commands with interactive prompts must support headless mode via CLI flags (e.g., `--name`, `--email`, `--yes`)
 - `git.ts` local config functions accept optional `cwd` parameter — use it when operating on a path other than CWD
 - `git.ts` has `unsetLocalConfig(key, cwd?)` for removing local config entries
-- Dependencies must be TypeScript-first (written in TS, ships own types — no `@types/` shims)
+- Dependencies must be TypeScript-first (written in TS, ships own types — no `@types/` shims). Exception: `@types/bun` is the official Bun types package.
+- Bun types: use `@types/bun` (not the deprecated `bun-types`) with `"types": ["bun"]` in `tsconfig.json`
 - Config stored at `~/.gitch/config.json`, override with `GITCH_CONFIG_DIR` env var
 - SSH config blocks use `# gitch:<profile> -- START/END` marker comments — never touch lines outside markers
 - Config functions are pure (take config, return new config) — only `loadConfig`/`saveConfig` do I/O
