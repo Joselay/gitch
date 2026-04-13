@@ -28,6 +28,16 @@ export function isValidProfileName(name: string): boolean {
   return SAFE_PROFILE_NAME.test(name) && name.length <= 64;
 }
 
+// Reject paths that could inject into SSH config or shell commands
+const DANGEROUS_PATH_CHARS = /[\n\r\t\0"'`\\${}]/;
+
+export function isValidSSHKeyPath(path: string): boolean {
+  if (!path.trim()) return false;
+  if (DANGEROUS_PATH_CHARS.test(path)) return false;
+  if (path.length > 4096) return false;
+  return true;
+}
+
 async function readSSHConfig(): Promise<string> {
   const file = Bun.file(SSH_CONFIG_PATH);
   if (!(await file.exists())) {
@@ -70,6 +80,9 @@ function removeBlock(content: string, profileName: string): string {
 }
 
 export async function addHostAlias(profileName: string, sshKeyPath: string): Promise<void> {
+  if (!isValidSSHKeyPath(sshKeyPath)) {
+    throw new Error("SSH key path contains invalid characters.");
+  }
   let content = await readSSHConfig();
   content = removeBlock(content, profileName);
 
@@ -98,6 +111,9 @@ export async function hasHostAlias(profileName: string): Promise<boolean> {
 }
 
 export function buildSSHCommand(sshKeyPath: string): string {
+  if (!isValidSSHKeyPath(sshKeyPath)) {
+    throw new Error("SSH key path contains invalid characters.");
+  }
   const expanded = expandPath(sshKeyPath);
   return `ssh -i "${expanded}" -o IdentitiesOnly=yes`;
 }

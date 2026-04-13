@@ -34,22 +34,16 @@ export async function getUserInfo(): Promise<GhUserInfo | null> {
   try {
     const result =
       await Bun.$`gh api user --jq '{login: .login, name: .name, email: .email}'`.quiet();
-    const parsed = JSON.parse(result.text().trim());
+    const parsed: unknown = JSON.parse(result.text().trim());
+    if (!parsed || typeof parsed !== "object") return null;
+    const obj = parsed as Record<string, unknown>;
+    if (typeof obj.login !== "string" || !obj.login) return null;
     return {
-      login: parsed.login,
-      name: parsed.name || null,
-      email: parsed.email || null,
+      login: obj.login,
+      name: typeof obj.name === "string" ? obj.name : null,
+      email: typeof obj.email === "string" ? obj.email : null,
     };
   } catch {
     return null;
-  }
-}
-
-export async function listSSHKeys(): Promise<string[]> {
-  try {
-    const result = await Bun.$`gh api user/keys --jq '.[].key'`.quiet();
-    return result.text().trim().split("\n").filter(Boolean);
-  } catch {
-    return [];
   }
 }

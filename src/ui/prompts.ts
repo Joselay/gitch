@@ -8,11 +8,13 @@ import {
   expandPath,
   generateSSHKey,
   getPublicKey,
+  isValidSSHKeyPath,
   openInBrowser,
   sshKeyExists,
   testSSHConnection,
 } from "../core/ssh.ts";
 import type { Profile } from "../types.ts";
+import { CancelledError } from "../types.ts";
 
 async function promptSSHKey(email: string, profileName: string): Promise<string | null> {
   const existingKeys = await discoverSSHKeys();
@@ -43,7 +45,7 @@ async function promptSSHKey(email: string, profileName: string): Promise<string 
 
   if (p.isCancel(choice)) {
     p.cancel("Profile creation cancelled.");
-    process.exit(0);
+    throw new CancelledError();
   }
 
   if (choice === GENERATE_NEW) {
@@ -66,12 +68,13 @@ async function promptSSHKey(email: string, profileName: string): Promise<string 
       placeholder: "~/.ssh/id_ed25519",
       validate: (v) => {
         if (!v?.trim()) return "SSH key path is required";
+        if (!isValidSSHKeyPath(v)) return "Path contains invalid characters";
       },
     });
 
     if (p.isCancel(path)) {
       p.cancel("Profile creation cancelled.");
-      process.exit(0);
+      throw new CancelledError();
     }
 
     const expanded = expandPath(path);
@@ -156,7 +159,7 @@ export async function promptProfile(name: string): Promise<PromptProfileResult |
 
     if (p.isCancel(linkGh)) {
       p.cancel("Profile creation cancelled.");
-      process.exit(0);
+      throw new CancelledError();
     }
 
     if (linkGh) {
@@ -182,7 +185,7 @@ export async function promptProfile(name: string): Promise<PromptProfileResult |
 
   if (p.isCancel(gitName)) {
     p.cancel("Profile creation cancelled.");
-    process.exit(0);
+    throw new CancelledError();
   }
 
   // Step 3: Git email (pre-filled from GitHub if available)
@@ -198,7 +201,7 @@ export async function promptProfile(name: string): Promise<PromptProfileResult |
 
   if (p.isCancel(gitEmail)) {
     p.cancel("Profile creation cancelled.");
-    process.exit(0);
+    throw new CancelledError();
   }
 
   // Step 4: SSH key

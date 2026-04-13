@@ -7,6 +7,7 @@ import {
   expandPath,
   generateSSHKey,
   isValidProfileName,
+  isValidSSHKeyPath,
   sshKeyExists,
   testSSHConnection,
 } from "../core/ssh.ts";
@@ -46,6 +47,13 @@ export function registerAdd(program: CAC): void {
 
       if (profileExists(config, profileName)) {
         out.error(`Profile "${profileName}" already exists.`);
+        process.exit(1);
+      }
+
+      const hasPartialHeadless =
+        !!(options.name || options.email) && !(options.name && options.email);
+      if (hasPartialHeadless) {
+        out.error("Both --name and --email are required for headless mode.");
         process.exit(1);
       }
 
@@ -139,6 +147,10 @@ async function buildProfileHeadless(
       return null;
     }
   } else if (options.sshKey) {
+    if (!isValidSSHKeyPath(options.sshKey)) {
+      out.error("SSH key path contains invalid characters.");
+      return null;
+    }
     const expanded = expandPath(options.sshKey);
     if (!(await sshKeyExists(expanded))) {
       out.error(`SSH key not found: ${expanded}`);
