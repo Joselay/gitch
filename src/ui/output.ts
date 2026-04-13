@@ -48,9 +48,9 @@ export function profileCard(
   const marker = isActive ? ansis.green("● ") : ansis.dim("○ ");
   const profileName = isActive ? ansis.green.bold(name) : ansis.bold(name);
   write(`${marker}${profileName}`);
-  label("  Email", email);
-  label("  SSH Key", sshKey);
+  label("Email", email);
+  label("SSH Key", sshKey);
   if (ghUser) {
-    label("  GitHub", ghUser);
+    label("GitHub", ghUser);
   }
 }

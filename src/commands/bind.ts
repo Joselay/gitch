@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 import type { CAC } from "cac";
 import { createBackup } from "../core/backup.ts";
 import { addBinding, getProfile, loadConfig, saveConfig } from "../core/config.ts";
-import { setLocalConfig } from "../core/git.ts";
+import { setLocalConfig, unsetLocalConfig } from "../core/git.ts";
 import { buildSSHCommand } from "../core/ssh.ts";
 import * as out from "../ui/output.ts";
 
@@ -23,11 +23,17 @@ export function registerBind(program: CAC): void {
 
       await createBackup();
 
+      const applied: string[] = [];
       try {
         await setLocalConfig("user.name", profile.gitName, absolutePath);
+        applied.push("user.name");
         await setLocalConfig("user.email", profile.gitEmail, absolutePath);
+        applied.push("user.email");
         await setLocalConfig("core.sshCommand", buildSSHCommand(profile.sshKeyPath), absolutePath);
       } catch {
+        for (const key of applied) {
+          await unsetLocalConfig(key, absolutePath);
+        }
         out.error(`Failed to set local git config at "${absolutePath}". Is it a git repository?`);
         process.exit(1);
       }

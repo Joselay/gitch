@@ -22,9 +22,16 @@ const BASH_HOOK = `_gitch_prompt() {
 }
 PROMPT_COMMAND="_gitch_prompt;\${PROMPT_COMMAND}"`;
 
+const FISH_HOOK = `function __gitch_cd --on-variable PWD
+  set -l profile (gitch _resolve 2>/dev/null)
+  if test -n "$profile"
+    echo "gitch: switched to $profile"
+  end
+end`;
+
 export function registerInit(program: CAC): void {
   program
-    .command("init <shell>", "Output shell hook for auto-switching (zsh or bash)")
+    .command("init <shell>", "Output shell hook for auto-switching (zsh, bash, or fish)")
     .action((shell: string) => {
       switch (shell) {
         case "zsh":
@@ -33,8 +40,11 @@ export function registerInit(program: CAC): void {
         case "bash":
           process.stdout.write(`${BASH_HOOK}\n`);
           break;
+        case "fish":
+          process.stdout.write(`${FISH_HOOK}\n`);
+          break;
         default:
-          out.error(`Unsupported shell: "${shell}". Use "zsh" or "bash".`);
+          out.error(`Unsupported shell: "${shell}". Use "zsh", "bash", or "fish".`);
           process.exit(1);
       }
     });

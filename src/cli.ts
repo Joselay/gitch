@@ -11,8 +11,12 @@ import { registerStatus } from "./commands/status.ts";
 import { registerUnbind } from "./commands/unbind.ts";
 import { registerUse } from "./commands/use.ts";
 import { registerWhoami } from "./commands/whoami.ts";
+import { CancelledError } from "./types.ts";
 
 process.on("unhandledRejection", (err) => {
+  if (err instanceof CancelledError) {
+    process.exit(0);
+  }
   process.stderr.write(
     `${ansis.red(`✗ ${err instanceof Error ? err.message : "An unexpected error occurred."}`)}\n`,
   );
