@@ -158,7 +158,9 @@ export async function promptProfile(name: string): Promise<Profile | null> {
     process.exit(0);
   }
 
-  await promptGitHubSetup(sshKeyPath);
+  if (ghUsername?.trim()) {
+    await promptGitHubSetup(sshKeyPath);
+  }
 
   p.outro("Profile created!");
 

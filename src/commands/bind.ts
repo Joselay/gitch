@@ -28,11 +28,11 @@ export function registerBind(program: CAC): void {
       await createBackup();
 
       try {
-        await setLocalConfig("user.name", profile.gitName);
-        await setLocalConfig("user.email", profile.gitEmail);
+        await setLocalConfig("user.name", profile.gitName, absolutePath);
+        await setLocalConfig("user.email", profile.gitEmail, absolutePath);
       } catch {
         out.error(
-          "Failed to set local git config. Is this a git repository?",
+          `Failed to set local git config at "${absolutePath}". Is it a git repository?`,
         );
         process.exit(1);
       }

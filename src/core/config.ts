@@ -28,14 +28,25 @@ export async function loadConfig(): Promise<GitchConfig> {
   if (!(await file.exists())) {
     return createDefaultConfig();
   }
-  const raw = await file.json();
+  let raw: unknown;
+  try {
+    raw = await file.json();
+  } catch {
+    process.stderr.write(
+      "\x1b[33m⚠ Config file is corrupted — starting with a fresh config.\x1b[0m\n",
+    );
+    return createDefaultConfig();
+  }
   if (
     !raw ||
     typeof raw !== "object" ||
-    !Array.isArray(raw.bindings) ||
-    typeof raw.profiles !== "object" ||
-    raw.profiles === null
+    !Array.isArray((raw as Record<string, unknown>).bindings) ||
+    typeof (raw as Record<string, unknown>).profiles !== "object" ||
+    (raw as Record<string, unknown>).profiles === null
   ) {
+    process.stderr.write(
+      "\x1b[33m⚠ Config file has an invalid structure — starting with a fresh config.\x1b[0m\n",
+    );
     return createDefaultConfig();
   }
   return raw as GitchConfig;
@@ -100,10 +111,11 @@ export function addBinding(
   path: string,
   profileName: string,
 ): GitchConfig {
-  const filtered = config.bindings.filter((b) => b.path !== path);
+  const normalized = path.endsWith("/") ? path.replace(/\/+$/, "") : path;
+  const filtered = config.bindings.filter((b) => b.path !== normalized);
   return {
     ...config,
-    bindings: [...filtered, { path, profile: profileName }],
+    bindings: [...filtered, { path: normalized, profile: profileName }],
   };
 }
 

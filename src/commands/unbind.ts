@@ -6,6 +6,7 @@ import {
   getBindingForPath,
   removeBinding,
 } from "../core/config.ts";
+import { unsetLocalConfig } from "../core/git.ts";
 import { createBackup } from "../core/backup.ts";
 import * as out from "../ui/output.ts";
 
@@ -24,12 +25,8 @@ export function registerUnbind(program: CAC): void {
 
       await createBackup();
 
-      try {
-        await Bun.$`git config --local --unset user.name`.quiet();
-        await Bun.$`git config --local --unset user.email`.quiet();
-      } catch {
-        // local config may already be unset, that's fine
-      }
+      await unsetLocalConfig("user.name", absolutePath);
+      await unsetLocalConfig("user.email", absolutePath);
 
       const updated = removeBinding(config, absolutePath);
       await saveConfig(updated);
