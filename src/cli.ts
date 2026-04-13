@@ -2,6 +2,9 @@ import cac from "cac";
 import pkg from "../package.json";
 import { registerAdd } from "./commands/add.ts";
 import { registerBind } from "./commands/bind.ts";
+import { registerClone } from "./commands/clone.ts";
+import { registerDoctor } from "./commands/doctor.ts";
+import { registerEdit } from "./commands/edit.ts";
 import { registerInit } from "./commands/init.ts";
 import { registerList } from "./commands/list.ts";
 import { registerRemove } from "./commands/remove.ts";
@@ -28,12 +31,15 @@ process.on("unhandledRejection", (err) => {
 const cli = cac("gitch");
 
 registerAdd(cli);
+registerEdit(cli);
 registerUse(cli);
 registerWhoami(cli);
 registerStatus(cli);
 registerRemove(cli);
 registerList(cli);
+registerDoctor(cli);
 registerBind(cli);
+registerClone(cli);
 registerUnbind(cli);
 registerInit(cli);
 registerResolve(cli);

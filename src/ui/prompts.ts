@@ -16,6 +16,13 @@ import {
 import type { Profile } from "../types.ts";
 import { CancelledError } from "../types.ts";
 
+function cancelGuard(value: unknown, message: string): asserts value is string | boolean {
+  if (p.isCancel(value)) {
+    p.cancel(message);
+    throw new CancelledError();
+  }
+}
+
 async function promptSSHKey(email: string, profileName: string): Promise<string | null> {
   const existingKeys = await discoverSSHKeys();
 
@@ -43,10 +50,7 @@ async function promptSSHKey(email: string, profileName: string): Promise<string 
     options,
   });
 
-  if (p.isCancel(choice)) {
-    p.cancel("Profile creation cancelled.");
-    throw new CancelledError();
-  }
+  cancelGuard(choice, "Profile creation cancelled.");
 
   if (choice === GENERATE_NEW) {
     const s = p.spinner();
@@ -72,10 +76,7 @@ async function promptSSHKey(email: string, profileName: string): Promise<string 
       },
     });
 
-    if (p.isCancel(path)) {
-      p.cancel("Profile creation cancelled.");
-      throw new CancelledError();
-    }
+    cancelGuard(path, "Profile creation cancelled.");
 
     const expanded = expandPath(path);
     if (!(await sshKeyExists(expanded))) {
@@ -158,10 +159,7 @@ export async function promptProfile(name: string): Promise<PromptProfileResult |
       initialValue: true,
     });
 
-    if (p.isCancel(linkGh)) {
-      p.cancel("Profile creation cancelled.");
-      throw new CancelledError();
-    }
+    cancelGuard(linkGh, "Profile creation cancelled.");
 
     if (linkGh) {
       ghInfo = await getUserInfo();
@@ -184,10 +182,7 @@ export async function promptProfile(name: string): Promise<PromptProfileResult |
     },
   });
 
-  if (p.isCancel(gitName)) {
-    p.cancel("Profile creation cancelled.");
-    throw new CancelledError();
-  }
+  cancelGuard(gitName, "Profile creation cancelled.");
 
   // Step 3: Git email (pre-filled from GitHub if available)
   const gitEmail = await p.text({
@@ -200,10 +195,7 @@ export async function promptProfile(name: string): Promise<PromptProfileResult |
     },
   });
 
-  if (p.isCancel(gitEmail)) {
-    p.cancel("Profile creation cancelled.");
-    throw new CancelledError();
-  }
+  cancelGuard(gitEmail, "Profile creation cancelled.");
 
   // Step 4: SSH key
   const sshKeyPath = await promptSSHKey(gitEmail, name);
@@ -239,6 +231,70 @@ export async function promptProfile(name: string): Promise<PromptProfileResult |
     },
     hostAliasConfigured,
   };
+}
+
+export async function promptEditProfile(
+  existing: Profile,
+): Promise<Partial<Omit<Profile, "name" | "createdAt">> | null> {
+  p.intro(`Editing profile: ${existing.name}`);
+
+  const gitName = await p.text({
+    message: "Git user name",
+    defaultValue: existing.gitName,
+    validate: (v) => {
+      if (!v?.trim()) return "Name is required";
+    },
+  });
+  cancelGuard(gitName, "Edit cancelled.");
+
+  const gitEmail = await p.text({
+    message: "Git email",
+    defaultValue: existing.gitEmail,
+    validate: (v) => {
+      if (!v?.trim()) return "Email is required";
+      if (!v.includes("@")) return "Invalid email";
+    },
+  });
+  cancelGuard(gitEmail, "Edit cancelled.");
+
+  const sshKeyPath = await p.text({
+    message: "SSH private key path",
+    defaultValue: existing.sshKeyPath,
+    validate: (v) => {
+      if (!v?.trim()) return "SSH key path is required";
+      if (!isValidSSHKeyPath(v)) return "Path contains invalid characters";
+    },
+  });
+  cancelGuard(sshKeyPath, "Edit cancelled.");
+
+  if (sshKeyPath !== existing.sshKeyPath) {
+    const expanded = expandPath(sshKeyPath);
+    if (!(await sshKeyExists(expanded))) {
+      p.cancel(`SSH key not found: ${expanded}`);
+      return null;
+    }
+  }
+
+  const ghUsername = await p.text({
+    message: "GitHub username (leave empty to clear)",
+    defaultValue: existing.ghUsername ?? "",
+  });
+  cancelGuard(ghUsername, "Edit cancelled.");
+
+  const updates: Partial<Omit<Profile, "name" | "createdAt">> = {};
+  if (gitName !== existing.gitName) updates.gitName = gitName;
+  if (gitEmail !== existing.gitEmail) updates.gitEmail = gitEmail;
+  if (sshKeyPath !== existing.sshKeyPath) updates.sshKeyPath = sshKeyPath;
+  const newGhUsername = ghUsername.trim() || undefined;
+  if (newGhUsername !== existing.ghUsername) updates.ghUsername = newGhUsername;
+
+  if (Object.keys(updates).length === 0) {
+    p.outro("No changes made.");
+    return null;
+  }
+
+  p.outro("Profile updated!");
+  return updates;
 }
 
 export async function confirmAction(message: string): Promise<boolean> {

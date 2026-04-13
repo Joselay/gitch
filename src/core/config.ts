@@ -124,6 +124,29 @@ export function setActiveProfile(config: GitchConfig, name: string | null): Gitc
   };
 }
 
+export function updateProfile(
+  config: GitchConfig,
+  name: string,
+  updates: Partial<Omit<Profile, "name" | "createdAt">>,
+): GitchConfig {
+  const existing = config.profiles[name];
+  if (!existing) return config;
+  const merged = { ...existing, ...updates, name: existing.name, createdAt: existing.createdAt };
+  // Strip undefined values so they don't persist as null in JSON
+  for (const key of Object.keys(merged) as (keyof typeof merged)[]) {
+    if (merged[key] === undefined) {
+      delete merged[key];
+    }
+  }
+  return {
+    ...config,
+    profiles: {
+      ...config.profiles,
+      [name]: merged,
+    },
+  };
+}
+
 export function profileExists(config: GitchConfig, name: string): boolean {
   return name in config.profiles;
 }

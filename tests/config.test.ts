@@ -6,6 +6,7 @@ import {
   profileExists,
   removeProfile,
   setActiveProfile,
+  updateProfile,
 } from "../src/core/config.ts";
 import type { Profile } from "../src/types.ts";
 import { createDefaultConfig } from "../src/types.ts";
@@ -105,5 +106,51 @@ describe("config", () => {
     let config = addProfile(createDefaultConfig(), mockProfile);
     config = addProfile(config, mockProfile2);
     expect(getProfileNames(config)).toEqual(["work", "personal"]);
+  });
+
+  test("updateProfile updates a single field", () => {
+    const config = addProfile(createDefaultConfig(), mockProfile);
+    const updated = updateProfile(config, "work", { gitEmail: "new@work.com" });
+    const profile = updated.profiles.work;
+    expect(profile?.gitEmail).toBe("new@work.com");
+    expect(profile?.gitName).toBe("John Doe");
+    expect(profile?.sshKeyPath).toBe("~/.ssh/id_ed25519_work");
+    expect(profile?.name).toBe("work");
+    expect(profile?.createdAt).toBe("2024-01-01T00:00:00.000Z");
+  });
+
+  test("updateProfile updates multiple fields", () => {
+    const config = addProfile(createDefaultConfig(), mockProfile);
+    const updated = updateProfile(config, "work", {
+      gitName: "Jane Doe",
+      gitEmail: "jane@work.com",
+      ghUsername: "janedoe",
+    });
+    const profile = updated.profiles.work;
+    expect(profile?.gitName).toBe("Jane Doe");
+    expect(profile?.gitEmail).toBe("jane@work.com");
+    expect(profile?.ghUsername).toBe("janedoe");
+  });
+
+  test("updateProfile does not mutate original", () => {
+    const config = addProfile(createDefaultConfig(), mockProfile);
+    updateProfile(config, "work", { gitEmail: "new@work.com" });
+    expect(config.profiles.work?.gitEmail).toBe("john@work.com");
+  });
+
+  test("updateProfile preserves name and createdAt", () => {
+    const config = addProfile(createDefaultConfig(), mockProfile);
+    const updated = updateProfile(config, "work", {
+      gitName: "Hacked Name",
+    });
+    const profile = updated.profiles.work;
+    expect(profile?.name).toBe("work");
+    expect(profile?.createdAt).toBe("2024-01-01T00:00:00.000Z");
+  });
+
+  test("updateProfile returns unchanged config for nonexistent profile", () => {
+    const config = addProfile(createDefaultConfig(), mockProfile);
+    const updated = updateProfile(config, "nonexistent", { gitEmail: "x@y.com" });
+    expect(updated).toEqual(config);
   });
 });
