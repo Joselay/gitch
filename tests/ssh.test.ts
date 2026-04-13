@@ -1,6 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { homedir } from "node:os";
-import { buildSSHCommand, expandPath, isValidProfileName } from "../src/core/ssh.ts";
+import {
+  buildSSHCommand,
+  expandPath,
+  isValidProfileName,
+  isValidSSHKeyPath,
+} from "../src/core/ssh.ts";
 
 describe("ssh", () => {
   test("expandPath expands ~ to homedir", () => {
@@ -45,6 +50,50 @@ describe("isValidProfileName", () => {
   test("rejects names longer than 64 characters", () => {
     expect(isValidProfileName("a".repeat(64))).toBe(true);
     expect(isValidProfileName("a".repeat(65))).toBe(false);
+  });
+});
+
+describe("isValidSSHKeyPath", () => {
+  test("accepts normal paths", () => {
+    expect(isValidSSHKeyPath("~/.ssh/id_ed25519")).toBe(true);
+    expect(isValidSSHKeyPath("/home/user/.ssh/key")).toBe(true);
+    expect(isValidSSHKeyPath("~/.ssh/id_ed25519_work")).toBe(true);
+  });
+
+  test("accepts paths with spaces", () => {
+    expect(isValidSSHKeyPath("/home/user/my keys/id_rsa")).toBe(true);
+  });
+
+  test("rejects paths with newlines", () => {
+    expect(isValidSSHKeyPath("/home/user/.ssh/key\nHost *")).toBe(false);
+    expect(isValidSSHKeyPath("key\rpath")).toBe(false);
+  });
+
+  test("rejects paths with quotes and backticks", () => {
+    expect(isValidSSHKeyPath('/home/"key')).toBe(false);
+    expect(isValidSSHKeyPath("/home/'key")).toBe(false);
+    expect(isValidSSHKeyPath("/home/`key")).toBe(false);
+  });
+
+  test("rejects paths with shell metacharacters", () => {
+    expect(isValidSSHKeyPath("/home/$USER/key")).toBe(false);
+    expect(isValidSSHKeyPath(`/home/\${USER}/key`)).toBe(false);
+    expect(isValidSSHKeyPath("key\\path")).toBe(false);
+  });
+
+  test("rejects paths with control characters", () => {
+    expect(isValidSSHKeyPath("/home/key\0")).toBe(false);
+    expect(isValidSSHKeyPath("/home/key\t")).toBe(false);
+  });
+
+  test("rejects empty or whitespace-only paths", () => {
+    expect(isValidSSHKeyPath("")).toBe(false);
+    expect(isValidSSHKeyPath("   ")).toBe(false);
+  });
+
+  test("rejects paths longer than 4096 characters", () => {
+    expect(isValidSSHKeyPath("/a".repeat(2048))).toBe(true);
+    expect(isValidSSHKeyPath("a".repeat(4097))).toBe(false);
   });
 });
 
