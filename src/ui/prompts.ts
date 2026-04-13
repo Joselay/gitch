@@ -7,8 +7,11 @@ import {
   getPublicKey,
   copyToClipboard,
   openInBrowser,
+  addHostAlias,
+  testSSHConnection,
 } from "../core/ssh.ts";
-import { isGhInstalled, addSSHKey, currentUser } from "../core/gh.ts";
+import { isGhInstalled, addSSHKey, getUserInfo } from "../core/gh.ts";
+import type { GhUserInfo } from "../core/gh.ts";
 import type { Profile } from "../types.ts";
 
 async function promptSSHKey(
@@ -100,19 +103,29 @@ async function promptGitHubSetup(
 
   if (p.isCancel(addToGitHub) || !addToGitHub) return;
 
-  if (await isGhInstalled()) {
-    const s = p.spinner();
-    s.start("Adding SSH key to GitHub via gh CLI...");
-    try {
-      const pubKeyPath = expandPath(sshKeyPath) + ".pub";
-      await addSSHKey(pubKeyPath, `gitch:${profileName}`);
-      s.stop("SSH key added to GitHub!");
-      return;
-    } catch {
-      s.stop("gh ssh-key add failed — falling back to manual method.");
+  const s = p.spinner();
+  s.start("Adding SSH key to GitHub via gh CLI...");
+  try {
+    const pubKeyPath = expandPath(sshKeyPath) + ".pub";
+    await addSSHKey(pubKeyPath, `gitch:${profileName}`);
+    s.stop("SSH key added to GitHub!");
+  } catch (err: unknown) {
+    const stderr = (err as { stderr?: Buffer })?.stderr?.toString() ?? "";
+    const msg = stderr || (err instanceof Error ? err.message : String(err));
+    if (msg.includes("already in use") || msg.includes("already exists")) {
+      s.stop("SSH key already on GitHub — no upload needed.");
+    } else if (msg.includes("scope") || msg.includes("admin:public_key")) {
+      s.stop("gh CLI missing SSH key permissions — falling back to manual.");
+      p.log.info("To fix this, run: gh auth refresh -h github.com -s admin:public_key");
+      await manualKeyUpload(sshKeyPath);
+    } else {
+      s.stop("Could not add SSH key via gh CLI.");
+      await manualKeyUpload(sshKeyPath);
     }
   }
+}
 
+async function manualKeyUpload(sshKeyPath: string): Promise<void> {
   try {
     const pubKey = await getPublicKey(sshKeyPath);
     await copyToClipboard(pubKey);
@@ -135,36 +148,8 @@ async function promptGitHubSetup(
 export async function promptProfile(name: string): Promise<Profile | null> {
   p.intro(`Creating profile: ${name}`);
 
-  const gitName = await p.text({
-    message: "Git user name",
-    placeholder: "John Doe",
-    validate: (v) => {
-      if (!v?.trim()) return "Name is required";
-    },
-  });
-
-  if (p.isCancel(gitName)) {
-    p.cancel("Profile creation cancelled.");
-    process.exit(0);
-  }
-
-  const gitEmail = await p.text({
-    message: "Git email",
-    placeholder: "john@example.com",
-    validate: (v) => {
-      if (!v?.trim()) return "Email is required";
-      if (!v.includes("@")) return "Invalid email";
-    },
-  });
-
-  if (p.isCancel(gitEmail)) {
-    p.cancel("Profile creation cancelled.");
-    process.exit(0);
-  }
-
-  const sshKeyPath = await promptSSHKey(gitEmail, name);
-  if (!sshKeyPath) return null;
-
+  // Step 1: Detect GitHub account first to pre-fill fields
+  let ghInfo: GhUserInfo | null = null;
   let ghUsername: string | undefined;
 
   if (await isGhInstalled()) {
@@ -179,16 +164,65 @@ export async function promptProfile(name: string): Promise<Profile | null> {
     }
 
     if (linkGh) {
-      const detectedUser = await currentUser();
-      if (detectedUser) {
-        ghUsername = detectedUser;
-        p.log.success(`GitHub account detected: ${detectedUser}`);
-        await promptGitHubSetup(sshKeyPath, name);
+      ghInfo = await getUserInfo();
+      if (ghInfo) {
+        ghUsername = ghInfo.login;
+        p.log.success(`GitHub account detected: ${ghInfo.login}`);
       } else {
         p.log.warning(
           "Could not detect GitHub user. Run 'gh auth login' first.",
         );
       }
+    }
+  }
+
+  // Step 2: Git name (pre-filled from GitHub if available)
+  const gitName = await p.text({
+    message: "Git user name",
+    placeholder: "John Doe",
+    defaultValue: ghInfo?.name ?? undefined,
+    validate: (v) => {
+      if (!v?.trim()) return "Name is required";
+    },
+  });
+
+  if (p.isCancel(gitName)) {
+    p.cancel("Profile creation cancelled.");
+    process.exit(0);
+  }
+
+  // Step 3: Git email (pre-filled from GitHub if available)
+  const gitEmail = await p.text({
+    message: "Git email",
+    placeholder: "john@example.com",
+    defaultValue: ghInfo?.email ?? undefined,
+    validate: (v) => {
+      if (!v?.trim()) return "Email is required";
+      if (!v.includes("@")) return "Invalid email";
+    },
+  });
+
+  if (p.isCancel(gitEmail)) {
+    p.cancel("Profile creation cancelled.");
+    process.exit(0);
+  }
+
+  // Step 4: SSH key
+  const sshKeyPath = await promptSSHKey(gitEmail, name);
+  if (!sshKeyPath) return null;
+
+  // Step 5: Upload SSH key to GitHub (skip if already working)
+  if (ghUsername) {
+    // Set up host alias first so we can test the connection
+    await addHostAlias(name, sshKeyPath);
+    const s = p.spinner();
+    s.start("Testing SSH connection...");
+    const sshWorks = await testSSHConnection(name);
+    if (sshWorks) {
+      s.stop("SSH key already works with GitHub — no upload needed.");
+    } else {
+      s.stop("SSH key not yet on GitHub.");
+      await promptGitHubSetup(sshKeyPath, name);
     }
   }
 
