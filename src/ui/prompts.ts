@@ -8,7 +8,7 @@ import {
   copyToClipboard,
   openInBrowser,
 } from "../core/ssh.ts";
-import { isGhInstalled, addSSHKey } from "../core/gh.ts";
+import { isGhInstalled, addSSHKey, currentUser } from "../core/gh.ts";
 import type { Profile } from "../types.ts";
 
 async function promptSSHKey(
@@ -165,18 +165,31 @@ export async function promptProfile(name: string): Promise<Profile | null> {
   const sshKeyPath = await promptSSHKey(gitEmail, name);
   if (!sshKeyPath) return null;
 
-  const ghUsername = await p.text({
-    message: "GitHub username (optional)",
-    placeholder: "johndoe",
-  });
+  let ghUsername: string | undefined;
 
-  if (p.isCancel(ghUsername)) {
-    p.cancel("Profile creation cancelled.");
-    process.exit(0);
-  }
+  if (await isGhInstalled()) {
+    const linkGh = await p.confirm({
+      message: "Link to GitHub account?",
+      initialValue: true,
+    });
 
-  if (ghUsername?.trim()) {
-    await promptGitHubSetup(sshKeyPath, name);
+    if (p.isCancel(linkGh)) {
+      p.cancel("Profile creation cancelled.");
+      process.exit(0);
+    }
+
+    if (linkGh) {
+      const detectedUser = await currentUser();
+      if (detectedUser) {
+        ghUsername = detectedUser;
+        p.log.success(`GitHub account detected: ${detectedUser}`);
+        await promptGitHubSetup(sshKeyPath, name);
+      } else {
+        p.log.warning(
+          "Could not detect GitHub user. Run 'gh auth login' first.",
+        );
+      }
+    }
   }
 
   p.outro("Profile created!");
@@ -186,7 +199,7 @@ export async function promptProfile(name: string): Promise<Profile | null> {
     gitName,
     gitEmail,
     sshKeyPath,
-    ghUsername: ghUsername || undefined,
+    ghUsername,
     createdAt: new Date().toISOString(),
   };
 }

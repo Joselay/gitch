@@ -14,7 +14,7 @@ import {
   generateSSHKey,
   testSSHConnection,
 } from "../core/ssh.ts";
-import { isGhInstalled, addSSHKey } from "../core/gh.ts";
+import { isGhInstalled, addSSHKey, currentUser } from "../core/gh.ts";
 import { createBackup } from "../core/backup.ts";
 import { promptProfile } from "../ui/prompts.ts";
 import * as out from "../ui/output.ts";
@@ -25,6 +25,7 @@ interface AddOptions {
   sshKey?: string;
   generateKey?: boolean;
   ghUsername?: string;
+  detectGh?: boolean;
   addToGithub?: boolean;
   testSsh?: boolean;
 }
@@ -37,6 +38,7 @@ export function registerAdd(program: CAC): void {
     .option("--ssh-key <path>", "SSH private key path (headless)")
     .option("--generate-key", "Generate a new SSH key (headless)")
     .option("--gh-username <username>", "GitHub username (headless)")
+    .option("--detect-gh", "Auto-detect GitHub username from gh CLI (headless)")
     .option("--add-to-github", "Add SSH key to GitHub via gh CLI (headless)")
     .option("--test-ssh", "Test SSH connection after setup")
     .action(async (profileName: string, options: AddOptions) => {
@@ -147,12 +149,28 @@ async function buildProfileHeadless(
     return null;
   }
 
+  let ghUsername = options.ghUsername;
+
+  if (!ghUsername && options.detectGh) {
+    if (await isGhInstalled()) {
+      const detected = await currentUser();
+      if (detected) {
+        ghUsername = detected;
+        out.success(`GitHub account detected: ${detected}`);
+      } else {
+        out.warn("Could not detect GitHub user. Run 'gh auth login' first.");
+      }
+    } else {
+      out.warn("GitHub CLI (gh) not installed — skipping auto-detect.");
+    }
+  }
+
   return {
     name: profileName,
     gitName: name,
     gitEmail: email,
     sshKeyPath,
-    ghUsername: options.ghUsername || undefined,
+    ghUsername: ghUsername || undefined,
     createdAt: new Date().toISOString(),
   };
 }
