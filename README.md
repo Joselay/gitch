@@ -1,6 +1,6 @@
 # gitego
 
-**/git-ee-go/** — git + ego ("self" in Latin). Your git self.
+**/git-ee-go/**
 
 [![CI](https://github.com/Joselay/gitego/actions/workflows/ci.yml/badge.svg)](https://github.com/Joselay/gitego/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
