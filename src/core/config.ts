@@ -1,7 +1,7 @@
 import { chmod, mkdir } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import type { GitchConfig, Profile } from "../types.ts";
+import type { EgoConfig, Profile } from "../types.ts";
 import { createDefaultConfig } from "../types.ts";
 
 function configWarn(message: string): void {
@@ -9,7 +9,7 @@ function configWarn(message: string): void {
 }
 
 function getConfigDir(): string {
-  return Bun.env.GITCH_CONFIG_DIR ?? join(homedir(), ".gitch");
+  return Bun.env.GITEGO_CONFIG_DIR ?? join(homedir(), ".gitego");
 }
 
 export function getConfigPath(): string {
@@ -25,7 +25,7 @@ export async function ensureConfigDir(): Promise<void> {
   await mkdir(getBackupsDir(), { recursive: true, mode: 0o700 });
 }
 
-export async function loadConfig(): Promise<GitchConfig> {
+export async function loadConfig(): Promise<EgoConfig> {
   const file = Bun.file(getConfigPath());
   if (!(await file.exists())) {
     return createDefaultConfig();
@@ -65,7 +65,7 @@ export async function loadConfig(): Promise<GitchConfig> {
     }
   }
 
-  const config = raw as GitchConfig;
+  const config = raw as EgoConfig;
   config.profiles = validatedProfiles;
 
   if (config.activeProfile && !(config.activeProfile in validatedProfiles)) {
@@ -87,17 +87,17 @@ function isValidProfile(value: unknown): value is Profile {
   );
 }
 
-export async function saveConfig(config: GitchConfig): Promise<void> {
+export async function saveConfig(config: EgoConfig): Promise<void> {
   await ensureConfigDir();
   await Bun.write(getConfigPath(), `${JSON.stringify(config, null, 2)}\n`);
   await chmod(getConfigPath(), 0o600);
 }
 
-export function getProfile(config: GitchConfig, name: string): Profile | undefined {
+export function getProfile(config: EgoConfig, name: string): Profile | undefined {
   return config.profiles[name];
 }
 
-export function addProfile(config: GitchConfig, profile: Profile): GitchConfig {
+export function addProfile(config: EgoConfig, profile: Profile): EgoConfig {
   return {
     ...config,
     profiles: {
@@ -107,7 +107,7 @@ export function addProfile(config: GitchConfig, profile: Profile): GitchConfig {
   };
 }
 
-export function removeProfile(config: GitchConfig, name: string): GitchConfig {
+export function removeProfile(config: EgoConfig, name: string): EgoConfig {
   const { [name]: _, ...rest } = config.profiles;
   return {
     ...config,
@@ -117,7 +117,7 @@ export function removeProfile(config: GitchConfig, name: string): GitchConfig {
   };
 }
 
-export function setActiveProfile(config: GitchConfig, name: string | null): GitchConfig {
+export function setActiveProfile(config: EgoConfig, name: string | null): EgoConfig {
   return {
     ...config,
     activeProfile: name,
@@ -125,10 +125,10 @@ export function setActiveProfile(config: GitchConfig, name: string | null): Gitc
 }
 
 export function updateProfile(
-  config: GitchConfig,
+  config: EgoConfig,
   name: string,
   updates: Partial<Omit<Profile, "name" | "createdAt">>,
-): GitchConfig {
+): EgoConfig {
   const existing = config.profiles[name];
   if (!existing) return config;
   const merged = { ...existing, ...updates, name: existing.name, createdAt: existing.createdAt };
@@ -147,15 +147,15 @@ export function updateProfile(
   };
 }
 
-export function profileExists(config: GitchConfig, name: string): boolean {
+export function profileExists(config: EgoConfig, name: string): boolean {
   return name in config.profiles;
 }
 
-export function getProfileNames(config: GitchConfig): string[] {
+export function getProfileNames(config: EgoConfig): string[] {
   return Object.keys(config.profiles);
 }
 
-export function addBinding(config: GitchConfig, path: string, profileName: string): GitchConfig {
+export function addBinding(config: EgoConfig, path: string, profileName: string): EgoConfig {
   const normalized = path.replace(/\/+$/, "");
   const filtered = config.bindings.filter((b) => b.path !== normalized);
   return {
@@ -164,7 +164,7 @@ export function addBinding(config: GitchConfig, path: string, profileName: strin
   };
 }
 
-export function removeBinding(config: GitchConfig, path: string): GitchConfig {
+export function removeBinding(config: EgoConfig, path: string): EgoConfig {
   return {
     ...config,
     bindings: config.bindings.filter((b) => b.path !== path),
@@ -172,7 +172,7 @@ export function removeBinding(config: GitchConfig, path: string): GitchConfig {
 }
 
 export function getBindingForPath(
-  config: GitchConfig,
+  config: EgoConfig,
   path: string,
 ): { path: string; profile: string } | undefined {
   return config.bindings

@@ -1,4 +1,4 @@
-import type { GitchConfig } from "../types.ts";
+import type { EgoConfig } from "../types.ts";
 import { getConfigPath } from "./config.ts";
 import { isGhInstalled } from "./gh.ts";
 import { getGlobalConfig } from "./git.ts";
@@ -15,7 +15,7 @@ export interface DoctorReport {
   profiles: Record<string, DiagnosticResult[]>;
 }
 
-export async function runDiagnostics(config: GitchConfig): Promise<DoctorReport> {
+export async function runDiagnostics(config: EgoConfig): Promise<DoctorReport> {
   const entries = Object.entries(config.profiles);
   const [global, ...profileResults] = await Promise.all([
     runGlobalChecks(config),
@@ -34,7 +34,7 @@ export async function runDiagnostics(config: GitchConfig): Promise<DoctorReport>
   return { global, profiles };
 }
 
-async function runGlobalChecks(config: GitchConfig): Promise<DiagnosticResult[]> {
+async function runGlobalChecks(config: EgoConfig): Promise<DiagnosticResult[]> {
   const results: DiagnosticResult[] = [];
 
   // Check config file exists
@@ -45,7 +45,7 @@ async function runGlobalChecks(config: GitchConfig): Promise<DiagnosticResult[]>
       : {
           label: "Config file missing",
           status: "warn",
-          hint: "Run 'gitch add <profile>' to create one.",
+          hint: "Run 'gitego add <profile>' to create one.",
         },
   );
 
@@ -58,7 +58,7 @@ async function runGlobalChecks(config: GitchConfig): Promise<DiagnosticResult[]>
         : {
             label: `Active profile "${config.activeProfile}" not found in config`,
             status: "fail",
-            hint: "Run 'gitch use <profile>' with an existing profile.",
+            hint: "Run 'gitego use <profile>' with an existing profile.",
           },
     );
 
@@ -80,7 +80,7 @@ async function runGlobalChecks(config: GitchConfig): Promise<DiagnosticResult[]>
           results.push({
             label: "Global git config does not match active profile",
             status: "fail",
-            hint: `Run 'gitch use ${config.activeProfile}' to re-apply.`,
+            hint: `Run 'gitego use ${config.activeProfile}' to re-apply.`,
           });
         }
       }
@@ -89,7 +89,7 @@ async function runGlobalChecks(config: GitchConfig): Promise<DiagnosticResult[]>
     results.push({
       label: "No active profile set",
       status: "warn",
-      hint: "Run 'gitch use <profile>' to set one.",
+      hint: "Run 'gitego use <profile>' to set one.",
     });
   }
 
@@ -110,7 +110,7 @@ async function runProfileChecks(
       : {
           label: "SSH private key missing",
           status: "fail",
-          hint: `Key not found at ${profile.sshKeyPath}. Update with 'gitch edit ${name} --ssh-key <path>'.`,
+          hint: `Key not found at ${profile.sshKeyPath}. Update with 'gitego edit ${name} --ssh-key <path>'.`,
         },
   );
 
@@ -135,7 +135,7 @@ async function runProfileChecks(
       : {
           label: "SSH config block missing",
           status: "fail",
-          hint: `Run 'gitch edit ${name} --ssh-key ${profile.sshKeyPath}' to regenerate it.`,
+          hint: `Run 'gitego edit ${name} --ssh-key ${profile.sshKeyPath}' to regenerate it.`,
         },
   );
 

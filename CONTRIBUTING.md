@@ -1,14 +1,14 @@
-# Contributing to gitch
+# Contributing to gitego
 
 Thanks for your interest in contributing!
 
 ## Development Setup
 
 ```bash
-git clone https://github.com/Joselay/gitch.git
-cd gitch
+git clone https://github.com/Joselay/gitego.git
+cd gitego
 bun install
-bun link    # makes `gitch` available globally
+bun link    # makes `gitego` available globally
 ```
 
 ## Project Structure
@@ -52,4 +52,4 @@ bun test tests/config.test.ts   # single file
 bun run test:coverage           # with coverage
 ```
 
-Tests use `GITCH_CONFIG_DIR` pointed at a temp directory to avoid touching real config.
+Tests use `GITEGO_CONFIG_DIR` pointed at a temp directory to avoid touching real config.

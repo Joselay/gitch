@@ -14,7 +14,7 @@ describe("discoverSSHKeys", () => {
   let tmpSshDir: string;
 
   beforeEach(async () => {
-    tmpSshDir = join(tmpdir(), `gitch-ssh-test-${Date.now()}`);
+    tmpSshDir = join(tmpdir(), `gitego-ssh-test-${Date.now()}`);
     await mkdir(tmpSshDir, { recursive: true, mode: 0o700 });
   });
 
@@ -57,7 +57,7 @@ describe("generateSSHKey", () => {
   });
 
   test("generates ed25519 key pair", async () => {
-    tmpSshDir = join(tmpdir(), `gitch-keygen-test-${Date.now()}`);
+    tmpSshDir = join(tmpdir(), `gitego-keygen-test-${Date.now()}`);
     await mkdir(tmpSshDir, { recursive: true, mode: 0o700 });
 
     const keyPath = join(tmpSshDir, "id_ed25519_test");

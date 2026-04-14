@@ -3,10 +3,10 @@ import { createBackup } from "../core/backup.ts";
 import { getProfile, loadConfig, profileExists, saveConfig } from "../core/config.ts";
 import { clearUrlRewrites, setUrlRewrite } from "../core/git.ts";
 import { addHostAlias, isValidProfileName, removeHostAlias } from "../core/ssh.ts";
-import type { GitchConfig } from "../types.ts";
+import type { EgoConfig } from "../types.ts";
 import * as out from "../ui/output.ts";
 
-function renameProfileInConfig(config: GitchConfig, oldName: string, newName: string): GitchConfig {
+function renameProfileInConfig(config: EgoConfig, oldName: string, newName: string): EgoConfig {
   const oldProfile = config.profiles[oldName];
   if (!oldProfile) return config;
 
@@ -36,7 +36,7 @@ export function registerRename(program: CAC): void {
 
       if (!getProfile(config, oldName)) {
         out.error(`Profile "${oldName}" not found.`);
-        out.dim("  Run 'gitch list' to see available profiles.");
+        out.dim("  Run 'gitego list' to see available profiles.");
         process.exit(1);
       }
 

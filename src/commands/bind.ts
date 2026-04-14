@@ -15,7 +15,7 @@ export function registerBind(program: CAC): void {
 
       if (!profile) {
         out.error(`Profile "${profileName}" not found.`);
-        out.dim("  Run 'gitch list' to see available profiles.");
+        out.dim("  Run 'gitego list' to see available profiles.");
         process.exit(1);
       }
 
@@ -40,6 +40,6 @@ export function registerBind(program: CAC): void {
       await saveConfig(updated);
 
       out.success(`Bound "${absolutePath}" → ${profileName} (${profile.gitEmail})`);
-      out.dim('  Add auto-switching: eval "$(gitch init zsh)" in your .zshrc');
+      out.dim('  Add auto-switching: eval "$(gitego init zsh)" in your .zshrc');
     });
 }

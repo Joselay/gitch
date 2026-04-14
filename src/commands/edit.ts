@@ -35,7 +35,7 @@ export function registerEdit(program: CAC): void {
 
       if (!profile) {
         out.error(`Profile "${profileName}" not found.`);
-        out.dim("  Run 'gitch list' to see available profiles.");
+        out.dim("  Run 'gitego list' to see available profiles.");
         process.exit(1);
       }
 

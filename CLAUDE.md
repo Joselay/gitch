@@ -1,4 +1,4 @@
-# Gitch — Git Account Switcher CLI
+# Gitego — Your Git Self CLI
 
 **Runtime: Bun** — use `bun` / `bunx` for everything (run, test, install, scripts). Bun auto-loads `.env`, so no dotenv.
 
@@ -25,8 +25,8 @@ bun run lint          # lint with Biome
 bun run lint:fix      # auto-fix lint/format issues
 bun run check         # lint + typecheck + test (all at once)
 bun --watch run index.ts  # run CLI locally with watch mode
-bun run build         # compile standalone binary to dist/gitch
-bun link              # install globally as `gitch` for manual testing
+bun run build         # compile standalone binary to dist/gitego
+bun link              # install globally as `gitego` for manual testing
 ```
 
 ## Code Style (Biome)
@@ -43,7 +43,7 @@ Entry point: `index.ts` (shebang `#!/usr/bin/env bun`) — just imports `src/cli
 ```
 src/
   cli.ts              # cac program + command registration
-  types.ts            # GitchConfig, Profile, DirectoryBinding interfaces
+  types.ts            # GitegoConfig, Profile, DirectoryBinding interfaces
   commands/           # One file per CLI command (add, edit, use, whoami, status, remove, rename, list, doctor, bind, clone, unbind, init, resolve, restore)
   core/               # Business logic (config.ts, git.ts, ssh.ts, gh.ts, backup.ts, doctor.ts)
   ui/                 # Output formatting (output.ts) with ansis, interactive prompts (prompts.ts) with @clack/prompts
@@ -60,7 +60,7 @@ tests/                # bun:test unit tests
 
 - Framework: `bun:test` (built-in, no extra deps)
 - Test files live in `tests/*.test.ts`
-- Config tests use `GITCH_CONFIG_DIR` pointed at a temp directory to avoid touching real config
+- Config tests use `GITEGO_CONFIG_DIR` pointed at a temp directory to avoid touching real config
 
 ## Key Patterns
 
@@ -69,11 +69,11 @@ tests/                # bun:test unit tests
 - `git.ts` has `unsetLocalConfig(key, cwd?)` for removing local config entries
 - Dependencies must be TypeScript-first (written in TS, ships own types — no `@types/` shims). Exception: `@types/bun` is the official Bun types package.
 - Bun types: use `@types/bun` (not the deprecated `bun-types`) with `"types": ["bun"]` in `tsconfig.json`
-- Config stored at `~/.gitch/config.json`, override with `GITCH_CONFIG_DIR` env var
-- SSH config blocks use `# gitch:<profile> -- START/END` marker comments — never touch lines outside markers
+- Config stored at `~/.gitego/config.json`, override with `GITEGO_CONFIG_DIR` env var
+- SSH config blocks use `# gitego:<profile> -- START/END` marker comments — never touch lines outside markers
 - Config functions are pure (take config, return new config) — only `loadConfig`/`saveConfig` do I/O
 - Commands export `registerX(program: CAC)` and are wired in `cli.ts`
-- Mutating commands call `createBackup()` before config changes — max 10 backups in `~/.gitch/backups/`, auto-pruned
+- Mutating commands call `createBackup()` before config changes — max 10 backups in `~/.gitego/backups/`, auto-pruned
 - Config and backup files are `chmod 600`, SSH dirs are `chmod 700` — preserve these permissions
 - `gh` CLI integration is optional — skip gracefully if not installed
 - `noUncheckedIndexedAccess` is enabled in `tsconfig.json` — indexed access returns `T | undefined`, so narrow before using

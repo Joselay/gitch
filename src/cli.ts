@@ -30,7 +30,7 @@ process.on("unhandledRejection", (err) => {
   process.exit(1);
 });
 
-const cli = cac("gitch");
+const cli = cac("gitego");
 
 registerAdd(cli);
 registerEdit(cli);

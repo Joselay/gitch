@@ -1,31 +1,31 @@
 import type { CAC } from "cac";
 import * as out from "../ui/output.ts";
 
-const ZSH_HOOK = `_gitch_chpwd() {
+const ZSH_HOOK = `_gitego_chpwd() {
   local profile
-  profile=$(gitch _resolve 2>/dev/null)
+  profile=$(gitego _resolve 2>/dev/null)
   if [[ -n "$profile" ]]; then
-    echo "gitch: switched to $profile"
+    echo "gitego: switched to $profile"
   fi
 }
 autoload -Uz add-zsh-hook
-add-zsh-hook chpwd _gitch_chpwd`;
+add-zsh-hook chpwd _gitego_chpwd`;
 
-const BASH_HOOK = `_gitch_prompt() {
-  if [[ "$_gitch_last_dir" == "$PWD" ]]; then return; fi
-  _gitch_last_dir="$PWD"
+const BASH_HOOK = `_gitego_prompt() {
+  if [[ "$_gitego_last_dir" == "$PWD" ]]; then return; fi
+  _gitego_last_dir="$PWD"
   local profile
-  profile=$(gitch _resolve 2>/dev/null)
+  profile=$(gitego _resolve 2>/dev/null)
   if [[ -n "$profile" ]]; then
-    echo "gitch: switched to $profile"
+    echo "gitego: switched to $profile"
   fi
 }
-PROMPT_COMMAND="_gitch_prompt;\${PROMPT_COMMAND}"`;
+PROMPT_COMMAND="_gitego_prompt;\${PROMPT_COMMAND}"`;
 
-const FISH_HOOK = `function __gitch_cd --on-variable PWD
-  set -l profile (gitch _resolve 2>/dev/null)
+const FISH_HOOK = `function __gitego_cd --on-variable PWD
+  set -l profile (gitego _resolve 2>/dev/null)
   if test -n "$profile"
-    echo "gitch: switched to $profile"
+    echo "gitego: switched to $profile"
   end
 end`;
 

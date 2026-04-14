@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report a bug in gitch
+about: Report a bug in gitego
 title: ""
 labels: bug
 assignees: ""
@@ -11,7 +11,7 @@ A clear description of what the bug is.
 
 **To reproduce**
 Steps to reproduce the behavior:
-1. Run `gitch ...`
+1. Run `gitego ...`
 2. See error
 
 **Expected behavior**
@@ -21,4 +21,4 @@ What you expected to happen.
 - OS: [e.g. macOS 15, Ubuntu 24.04]
 - Shell: [e.g. zsh, bash]
 - Bun version: [e.g. 1.3.9]
-- gitch version: [e.g. 1.0.0]
+- gitego version: [e.g. 1.0.0]

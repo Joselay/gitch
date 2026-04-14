@@ -2,10 +2,10 @@ import { afterAll, beforeEach, describe, expect, test } from "bun:test";
 import { mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { GitchConfig } from "../src/types.ts";
+import type { EgoConfig } from "../src/types.ts";
 
-const testDir = await mkdtemp(join(tmpdir(), "gitch-restore-"));
-process.env.GITCH_CONFIG_DIR = testDir;
+const testDir = await mkdtemp(join(tmpdir(), "gitego-restore-"));
+process.env.GITEGO_CONFIG_DIR = testDir;
 
 const { createBackup } = await import("../src/core/backup.ts");
 const { getBackupsDir, getConfigPath, loadConfig, saveConfig } = await import(
@@ -38,7 +38,7 @@ beforeEach(async () => {
 
 describe("restore workflow", () => {
   test("backup contains the config state at time of backup", async () => {
-    const original: GitchConfig = {
+    const original: EgoConfig = {
       version: 1,
       activeProfile: "work",
       profiles: {
@@ -58,7 +58,7 @@ describe("restore workflow", () => {
     expect(backupPath).not.toBeNull();
 
     // Modify config
-    const modified: GitchConfig = {
+    const modified: EgoConfig = {
       ...original,
       activeProfile: null,
       profiles: {},
@@ -71,7 +71,7 @@ describe("restore workflow", () => {
 
     // Restore from backup
     if (!backupPath) throw new Error("Expected backupPath");
-    const backupContent = (await Bun.file(backupPath).json()) as GitchConfig;
+    const backupContent = (await Bun.file(backupPath).json()) as EgoConfig;
     await saveConfig(backupContent);
 
     // Verify restored config matches original

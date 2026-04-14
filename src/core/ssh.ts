@@ -5,8 +5,8 @@ import { join } from "node:path";
 const SSH_DIR = join(homedir(), ".ssh");
 const SSH_CONFIG_PATH = join(SSH_DIR, "config");
 
-const START_MARKER = (name: string) => `# gitch:${name} -- START`;
-const END_MARKER = (name: string) => `# gitch:${name} -- END`;
+const START_MARKER = (name: string) => `# gitego:${name} -- START`;
+const END_MARKER = (name: string) => `# gitego:${name} -- END`;
 
 function buildHostBlock(profileName: string, sshKeyPath: string): string {
   return [

@@ -26,10 +26,10 @@ export function registerWhoami(program: CAC): void {
 
     if (name || email) {
       out.heading(`You are ${name ?? "unknown"} <${email ?? "unknown"}>`);
-      out.dim("  No gitch profile active.");
+      out.dim("  No gitego profile active.");
     } else {
       out.warn("No git identity configured.");
-      out.dim("  Run 'gitch add <profile>' to create one.");
+      out.dim("  Run 'gitego add <profile>' to create one.");
     }
   });
 }

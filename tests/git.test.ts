@@ -18,7 +18,7 @@ import {
 let repoDir: string;
 
 beforeEach(async () => {
-  repoDir = await mkdtemp(join(tmpdir(), "gitch-git-test-"));
+  repoDir = await mkdtemp(join(tmpdir(), "gitego-git-test-"));
   await Bun.$`git init ${repoDir}`.quiet();
 });
 
@@ -89,7 +89,7 @@ describe("clearProfileLocally", () => {
 });
 
 describe("global config helpers", () => {
-  const testKey = "gitch-test.tempvalue";
+  const testKey = "gitego-test.tempvalue";
 
   afterEach(async () => {
     try {
@@ -107,7 +107,7 @@ describe("global config helpers", () => {
   });
 
   test("getGlobalConfig returns null for unset key", async () => {
-    const value = await getGlobalConfig("gitch-test.doesnotexist");
+    const value = await getGlobalConfig("gitego-test.doesnotexist");
     expect(value).toBeNull();
   });
 
@@ -132,7 +132,7 @@ describe("URL rewrites", () => {
     expect(value).toBe("git@github.com:");
   });
 
-  test("clearUrlRewrites removes all gitch rewrites", async () => {
+  test("clearUrlRewrites removes all gitego rewrites", async () => {
     await setUrlRewrite("work");
     await setUrlRewrite("personal");
     await clearUrlRewrites();

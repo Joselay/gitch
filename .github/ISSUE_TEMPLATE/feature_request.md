@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: Suggest an idea for gitch
+about: Suggest an idea for gitego
 title: ""
 labels: enhancement
 assignees: ""

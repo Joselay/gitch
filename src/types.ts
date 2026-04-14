@@ -12,7 +12,7 @@ export interface DirectoryBinding {
   profile: string;
 }
 
-export interface GitchConfig {
+export interface EgoConfig {
   version: 1;
   activeProfile: string | null;
   profiles: Record<string, Profile>;
@@ -26,7 +26,7 @@ export class CancelledError extends Error {
   }
 }
 
-export function createDefaultConfig(): GitchConfig {
+export function createDefaultConfig(): EgoConfig {
   return {
     version: 1,
     activeProfile: null,

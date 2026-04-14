@@ -1,10 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { addProfile } from "../src/core/config.ts";
-import type { GitchConfig, Profile } from "../src/types.ts";
+import type { EgoConfig, Profile } from "../src/types.ts";
 import { createDefaultConfig } from "../src/types.ts";
 
 // Test the pure renameProfileInConfig logic extracted inline
-function renameProfileInConfig(config: GitchConfig, oldName: string, newName: string): GitchConfig {
+function renameProfileInConfig(config: EgoConfig, oldName: string, newName: string): EgoConfig {
   const oldProfile = config.profiles[oldName];
   if (!oldProfile) return config;
 

@@ -2,12 +2,12 @@ import { afterAll, beforeEach, describe, expect, test } from "bun:test";
 import { mkdtemp, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import type { GitchConfig } from "../src/types.ts";
+import type { EgoConfig } from "../src/types.ts";
 
-const testDir = await mkdtemp(join(tmpdir(), "gitch-config-io-"));
-process.env.GITCH_CONFIG_DIR = testDir;
+const testDir = await mkdtemp(join(tmpdir(), "gitego-config-io-"));
+process.env.GITEGO_CONFIG_DIR = testDir;
 
-// Dynamic import so config.ts reads our GITCH_CONFIG_DIR
+// Dynamic import so config.ts reads our GITEGO_CONFIG_DIR
 const { loadConfig, saveConfig, getConfigPath } = await import("../src/core/config.ts");
 
 const configPath = getConfigPath();
@@ -105,7 +105,7 @@ describe("loadConfig", () => {
   });
 
   test("loads valid config correctly", async () => {
-    const data: GitchConfig = {
+    const data: EgoConfig = {
       version: 1,
       activeProfile: "work",
       profiles: {
@@ -129,7 +129,7 @@ describe("loadConfig", () => {
 
 describe("saveConfig", () => {
   test("round-trips config correctly", async () => {
-    const data: GitchConfig = {
+    const data: EgoConfig = {
       version: 1,
       activeProfile: "personal",
       profiles: {
@@ -150,7 +150,7 @@ describe("saveConfig", () => {
   });
 
   test("sets file permissions to 600", async () => {
-    const data: GitchConfig = {
+    const data: EgoConfig = {
       version: 1,
       activeProfile: null,
       profiles: {},

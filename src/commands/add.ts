@@ -89,7 +89,7 @@ export function registerAdd(program: CAC): void {
         if (await isGhInstalled()) {
           try {
             const pubKeyPath = `${expandPath(profile.sshKeyPath)}.pub`;
-            await addSSHKey(pubKeyPath, `gitch:${profileName}`);
+            await addSSHKey(pubKeyPath, `gitego:${profileName}`);
             out.success("SSH key added to GitHub via gh CLI.");
           } catch {
             out.warn("Failed to add SSH key to GitHub. Add it manually.");
@@ -101,7 +101,7 @@ export function registerAdd(program: CAC): void {
 
       out.success(`Profile "${profileName}" added.`);
       out.dim(`  SSH alias: github.com-${profileName}`);
-      out.dim(`  Switch to it: gitch use ${profileName}`);
+      out.dim(`  Switch to it: gitego use ${profileName}`);
 
       if (options.testSsh) {
         out.info("Testing SSH connection...");

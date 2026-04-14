@@ -102,7 +102,7 @@ async function promptGitHubSetup(sshKeyPath: string, profileName: string): Promi
   s.start("Adding SSH key to GitHub via gh CLI...");
   try {
     const pubKeyPath = `${expandPath(sshKeyPath)}.pub`;
-    await addSSHKey(pubKeyPath, `gitch:${profileName}`);
+    await addSSHKey(pubKeyPath, `gitego:${profileName}`);
     s.stop("SSH key added to GitHub!");
   } catch (err: unknown) {
     const stderr = (err as { stderr?: Buffer })?.stderr?.toString() ?? "";

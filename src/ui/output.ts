@@ -40,7 +40,7 @@ export function listItem(name: string, isActive: boolean): void {
 
 export function emptyProfiles(): void {
   info("No profiles configured.");
-  dim("  Run 'gitch add <profile>' to create one.");
+  dim("  Run 'gitego add <profile>' to create one.");
 }
 
 export function profileCard(

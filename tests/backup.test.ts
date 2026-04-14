@@ -3,10 +3,10 @@ import { mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-const testDir = await mkdtemp(join(tmpdir(), "gitch-backup-"));
-process.env.GITCH_CONFIG_DIR = testDir;
+const testDir = await mkdtemp(join(tmpdir(), "gitego-backup-"));
+process.env.GITEGO_CONFIG_DIR = testDir;
 
-// Dynamic import so modules read our GITCH_CONFIG_DIR
+// Dynamic import so modules read our GITEGO_CONFIG_DIR
 const { createBackup } = await import("../src/core/backup.ts");
 const { getBackupsDir, getConfigPath, saveConfig } = await import("../src/core/config.ts");
 const { createDefaultConfig } = await import("../src/types.ts");

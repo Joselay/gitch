@@ -25,11 +25,11 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun run build
-      - run: mv dist/gitch dist/gitch-${{ matrix.target }}
+      - run: mv dist/gitego dist/gitego-${{ matrix.target }}
       - uses: actions/upload-artifact@v4
         with:
-          name: gitch-${{ matrix.target }}
-          path: dist/gitch-${{ matrix.target }}
+          name: gitego-${{ matrix.target }}
+          path: dist/gitego-${{ matrix.target }}
 
   release:
     name: Create Release
@@ -41,8 +41,8 @@ jobs:
         with:
           path: artifacts
           merge-multiple: true
-      - run: chmod +x artifacts/gitch-*
+      - run: chmod +x artifacts/gitego-*
       - uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          files: artifacts/gitch-*
+          files: artifacts/gitego-*

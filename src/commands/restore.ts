@@ -2,7 +2,7 @@ import { readdir } from "node:fs/promises";
 import { join } from "node:path";
 import type { CAC } from "cac";
 import { getBackupsDir, getConfigPath, saveConfig } from "../core/config.ts";
-import type { GitchConfig } from "../types.ts";
+import type { EgoConfig } from "../types.ts";
 import * as out from "../ui/output.ts";
 
 async function listBackups(): Promise<string[]> {
@@ -46,8 +46,8 @@ export function registerRestore(program: CAC): void {
         }
         if (!backup) {
           process.stdout.write("\n");
-          out.dim("  Usage: gitch restore <number>  (e.g. gitch restore 1)");
-          out.dim("  Or:    gitch restore latest");
+          out.dim("  Usage: gitego restore <number>  (e.g. gitego restore 1)");
+          out.dim("  Or:    gitego restore latest");
         }
         return;
       }
@@ -65,7 +65,7 @@ export function registerRestore(program: CAC): void {
 
       if (!targetFile) {
         out.error(
-          `Invalid backup: "${backup}". Run 'gitch restore --list' to see available backups.`,
+          `Invalid backup: "${backup}". Run 'gitego restore --list' to see available backups.`,
         );
         process.exit(1);
       }
@@ -78,9 +78,9 @@ export function registerRestore(program: CAC): void {
         process.exit(1);
       }
 
-      let config: GitchConfig;
+      let config: EgoConfig;
       try {
-        config = (await file.json()) as GitchConfig;
+        config = (await file.json()) as EgoConfig;
       } catch {
         out.error("Backup file is corrupted.");
         process.exit(1);
