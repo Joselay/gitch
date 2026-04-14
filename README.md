@@ -1,6 +1,6 @@
 # gitego
 
-**/git-ee-go/**
+*Pronounced: git-ego*
 
 [![CI](https://github.com/Joselay/gitego/actions/workflows/ci.yml/badge.svg)](https://github.com/Joselay/gitego/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
