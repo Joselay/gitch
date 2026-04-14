@@ -19,13 +19,10 @@ Managing multiple Git accounts (work, personal, open source) usually means manua
 
 ## Install
 
-Requires [Bun](https://bun.sh) runtime. Until this package is published under a name you control, install from source:
+Requires [Bun](https://bun.sh) runtime.
 
 ```bash
-git clone https://github.com/Joselay/gitego.git
-cd gitego
-bun install
-bun link
+bun install -g gitego
 ```
 
 ## Quick Start
