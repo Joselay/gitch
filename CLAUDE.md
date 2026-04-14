@@ -43,7 +43,7 @@ Entry point: `index.ts` (shebang `#!/usr/bin/env bun`) — just imports `src/cli
 ```
 src/
   cli.ts              # cac program + command registration
-  types.ts            # GitegoConfig, Profile, DirectoryBinding interfaces
+  types.ts            # EgoConfig, Profile, DirectoryBinding interfaces
   commands/           # One file per CLI command (add, edit, use, whoami, status, remove, rename, list, doctor, bind, clone, unbind, init, resolve, restore)
   core/               # Business logic (config.ts, git.ts, ssh.ts, gh.ts, backup.ts, doctor.ts)
   ui/                 # Output formatting (output.ts) with ansis, interactive prompts (prompts.ts) with @clack/prompts
