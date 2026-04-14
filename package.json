@@ -1,16 +1,17 @@
 {
   "name": "gitego",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "dependencies": {
     "@clack/prompts": "^1.2.0",
     "ansis": "^4.2.0",
     "cac": "^7.0.0"
   },
   "bin": {
-    "gitego": "./index.ts"
+    "gitego": "bin/gitego.js"
   },
   "description": "Switch identity — manage multiple Git identities",
   "license": "MIT",
+  "homepage": "https://github.com/Joselay/gitego#readme",
   "repository": {
     "type": "git",
     "url": "https://github.com/Joselay/gitego.git"
@@ -24,8 +25,8 @@
   ],
   "files": [
     "src",
-    "index.ts",
-    "dist"
+    "bin",
+    "index.ts"
   ],
   "scripts": {
     "dev": "bun --watch run index.ts",
