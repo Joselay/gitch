@@ -27,6 +27,7 @@ bun run check         # lint + typecheck + test (all at once)
 bun --watch run index.ts  # run CLI locally with watch mode
 bun run build         # compile standalone binary to dist/gitego
 bun link              # install globally as `gitego` for manual testing
+bun publish           # publish to npm (runs check + build via prepublishOnly)
 ```
 
 ## Code Style (Biome)
@@ -39,6 +40,7 @@ bun link              # install globally as `gitego` for manual testing
 ## Architecture
 
 Entry point: `index.ts` (shebang `#!/usr/bin/env bun`) — just imports `src/cli.ts`.
+Published entry: `bin/gitego.js` (same shebang, imports `src/cli.ts`) — used by npm/bun global installs.
 
 ```
 src/
@@ -48,6 +50,8 @@ src/
   core/               # Business logic (config.ts, git.ts, ssh.ts, gh.ts, backup.ts, doctor.ts)
   ui/                 # Output formatting (output.ts) with ansis, interactive prompts (prompts.ts) with @clack/prompts
 tests/                # bun:test unit tests
+  fixtures/           # Test fixture data
+bin/                  # Published CLI entry point (gitego.js)
 ```
 
 ## Adding a Command
